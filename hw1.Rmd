@@ -87,6 +87,41 @@ auto$origin = factor(auto$origin, 1:3, c("US", "Europe", "Japan"))
 summary(auto)
 ```
 
+```{r}
+model <- lm(mpg ~ horsepower, data = auto)
+summary(model)
+```
+
+### (a). What is the estimated regression equation?
+
+### (b) What does the slope tell you?
+
+### (c) How much uncertainty is associated with the slope estimate?
+
+### (d) What does the residual standard error tell you?
+
+### (e) Using this model, is there a significant relationship between mpg and horsepower?
+
+### (f) What fraction of the variation in mpg is explained by using this linear function of horsepower?
+
+### (g) What is the predicted mpg associated with a horsepower of 98?
+
+### (h) What is the 95% prediction interval for the predicted mpg associated with a horsepower of 98? For what types of questions would it be appropriate to look at the PI?
+
+```{r}
+predict(model, data.frame(horsepower = 98), interval = "prediction")
+```
+
+### (i) What is the 99% confidence interval for the mean prediction of mpg when horse- power is 98? For what types of questions would it be appropriate to look at the CI for mean prediction?
+
+```{r}
+predict(model, data.frame(horsepower = 98), interval = "confidence", level = 0.99)
+```
+
+### (j) What is a 90% confidence interval for the slope?
+
+### (k) In looking at the scatterplot and fitted model, note any violations of the model assumptions
+
 
 ## Question 3
 
