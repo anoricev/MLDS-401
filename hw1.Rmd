@@ -2,6 +2,7 @@
 title: "MLDS 401: Homework 1"
 output: pdf_document
 date: "2025-09-18"
+author: Arielle Weinstein, Jack Bailey, Jacob Lian, Veronica Lin
 ---
 
 ```{r setup, include=FALSE}
@@ -92,6 +93,16 @@ model <- lm(mpg ~ horsepower, data = auto)
 summary(model)
 ```
 
+```{r}
+auto$origin <- as.factor(auto$origin)
+plot(auto$horsepower, auto$mpg,
+     xlab = "Horsepower",
+     ylab = "Miles per Gallon (mpg)",
+     main = "Regression of mpg on horsepower by origin",
+     pch = 20, col = auto$origin)
+abline(model)
+```
+
 ### (a). What is the estimated regression equation?
 
 ### (b) What does the slope tell you?
@@ -130,12 +141,24 @@ library(psych)
 pairs.panels(auto[,c(2:8,1)], stars=T, density=T) # part a
 ```
 
+### a) (3 points) Based on the scatterplots, comment on the relationships between the predictors and mpg.
+
 ```{r}
 round(cor(auto[,1:7], use="pair"),4) # part b
 ```
+
+### (b) (2 points) What is the correlation between mpg and displacement and what does it tell you? Which variables have significant relationships with mpg?
 
 ```{r}
 fit = lm(mpg~., auto[,1:8]) # part c
 summary(fit)
 ```
+
+### (c) (2 points) Is there a statistically significant relationship between the predictors and the response? (Hint: do the F test using the multiple regression output)
+
+### (d) (2 points) Which predictors appear to have a statistically significant relationship to the response in the multiple regression?
+
+### (e) (2 points) What does the slope coefficient for the year variable suggest?
+
+### (f) (2 points) What does the slope coefficient for the displacement variable suggest?
 
