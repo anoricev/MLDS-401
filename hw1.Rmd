@@ -57,13 +57,23 @@ sd_ibm
 sd_sp500 <- sd(StockBeta$"S&P 500")
 sd_sp500
 
-sd_Apple <- sd(StockBeta$Apple)
+sd_apple <- sd(StockBeta$Apple)
 sd_sp500
+```
 
+```{r}
 cor(StockBeta[, c("S&P 500", "IBM", "Apple")])
 ```
 
+```{r}
+r_ibm <- cor(StockBeta$IBM, StockBeta$"S&P 500")
+beta_ibm_check <- r_ibm * (sd_ibm / sd_sp500)
+beta_ibm_check
 
+r_apple <- cor(StockBeta$Apple, StockBeta$"S&P 500")
+beta_apple_check <- r_apple * (sd_apple / sd_sp500)
+beta_apple_check
+```
 
 ### (d). Explain based on the statistics calculated how a higher expected return is accompanied by higher volatility of the Apple stock.
 
