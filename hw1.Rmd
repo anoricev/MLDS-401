@@ -2,7 +2,7 @@
 title: "MLDS 401: Homework 1"
 output: pdf_document
 date: "2025-09-18"
-author: Arielle Weinstein, Jack Bailey, Jacob Lian, Veronica Lin
+author: Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin
 ---
 
 ```{r setup, include=FALSE}
