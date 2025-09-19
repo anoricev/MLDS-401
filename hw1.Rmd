@@ -1,0 +1,65 @@
+---
+title: "MLDS 401: Homework 1"
+output: pdf_document
+date: "2025-09-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+```{r}
+library(readr)
+StockBeta <- read_csv("401-data/IBM-Apple-SP500 RR Data.csv", 
+                      col_types = cols(`S&P 500` = col_number(), 
+                                       IBM = col_number(), 
+                                       Apple = col_number()), 
+                      skip = 1)
+StockBeta <- StockBeta[, -5]
+summary(StockBeta)
+```
+
+
+### (a). Make scatter plots of rates of return of IBM versus S&P 500 and of Apple versus S&P 500 and comment on them.
+
+
+
+### (b). Calculate the $\beta$'s for IBM and Apple with reference to S&P 500. Comment on the relative magnitudes of the $\beta$'s. Which stock had a higher expected return relative to S&P 500?
+
+
+
+### (c). Calculate the sample standard deviations (SDs) of the rates of return for S&P 500, IBM and Apple. Also calculate the correlation matrix. Check that $\beta$ = $rs_y/s_x$ for each stock where $r$ is the correlation coefficient between S&P 500 and the given stock, $s_x$ is the sample SD of S&P 500 and $s_y$ is the sample SD of the given stock.
+
+
+
+### (d). Explain based on the statistics calculated how a higher expected return is accompanied by higher volatility of the Apple stock.
+
+
+
+## Question 2
+
+```{r}
+auto <- read.table("~/Desktop/401-data/auto.txt", head=T)
+auto$origin = factor(auto$origin, 1:3, c("US", "Europe", "Japan"))
+summary(auto)
+```
+
+
+## Question 3
+
+```{r}
+library(psych)
+pairs.panels(auto[,c(2:8,1)], stars=T, density=T) # part a
+```
+
+```{r}
+round(cor(auto[,1:7], use="pair"),4) # part b
+```
+
+```{r}
+fit = lm(mpg~., auto[,1:8]) # part c
+summary(fit)
+```
+
