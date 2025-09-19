@@ -32,17 +32,36 @@ plot(StockBeta$IBM ~ StockBeta$"S&P 500",
 ```
 
 ```{r}
-plot(StockBeta$IBM ~ StockBeta$Apple, 
-     main = "Monthly Return Rate of IBM versus Apple",
-     xlab = "Monthly Return Rate (%) of Apple",
-     ylab = "Monthly Return Rate (%) of IBM")
+plot(StockBeta$Apple ~ StockBeta$"S&P 500", 
+     main = "Monthly Return Rate of Apple versus S&P 500",
+     xlab = "Monthly Return Rate (%) of S&P 500",
+     ylab = "Monthly Return Rate (%) of Apple")
 ```
 
 ### (b). Calculate the $\beta$'s for IBM and Apple with reference to S&P 500. Comment on the relative magnitudes of the $\beta$'s. Which stock had a higher expected return relative to S&P 500?
 
+```{r}
+ibm_fit <- lm(StockBeta$IBM ~ StockBeta$"S&P 500")
+summary(ibm_fit)$coefficients
 
+apple_fit <- lm(StockBeta$Apple ~ StockBeta$"S&P 500")
+summary(apple_fit)$coefficients
+```
 
 ### (c). Calculate the sample standard deviations (SDs) of the rates of return for S&P 500, IBM and Apple. Also calculate the correlation matrix. Check that $\beta$ = $rs_y/s_x$ for each stock where $r$ is the correlation coefficient between S&P 500 and the given stock, $s_x$ is the sample SD of S&P 500 and $s_y$ is the sample SD of the given stock.
+
+```{r}
+sd_ibm <- sd(StockBeta$IBM)
+sd_ibm
+
+sd_sp500 <- sd(StockBeta$"S&P 500")
+sd_sp500
+
+sd_Apple <- sd(StockBeta$Apple)
+sd_sp500
+
+cor(StockBeta[, c("S&P 500", "IBM", "Apple")])
+```
 
 
 
