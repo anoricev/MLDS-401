@@ -1,0 +1,207 @@
+"D:\Visual Studio 2022 v17.10\tools\Python39_64\python.exe" "E:\mlds\MLDS 401 Machine Learning\course_files_export\Homework\HW1\hw1.py" 
+Loaded stock numeric frame (head):
+    SP500     IBM   Apple
+0  0.0395  0.0422  0.0039
+1 -0.0313 -0.0608  0.0838
+2  0.0495  0.0206  0.1412
+3 -0.0150 -0.0813 -0.1183
+4  0.0208  0.0319  0.0224
+
+=== Q1: Stock Beta (Market Model) ===
+
+--- OLS: IBM ~ SP500 ---
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    IBM   R-squared:                       0.357
+Model:                            OLS   Adj. R-squared:                  0.351
+Method:                 Least Squares   F-statistic:                     56.63
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):           2.15e-11
+Time:                        12:06:59   Log-Likelihood:                 176.46
+No. Observations:                 104   AIC:                            -348.9
+Df Residuals:                     102   BIC:                            -343.6
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      0.0064      0.004      1.454      0.149      -0.002       0.015
+SP500          0.7448      0.099      7.525      0.000       0.548       0.941
+==============================================================================
+Omnibus:                        6.373   Durbin-Watson:                   2.006
+Prob(Omnibus):                  0.041   Jarque-Bera (JB):                9.404
+Skew:                           0.194   Prob(JB):                      0.00908
+Kurtosis:                       4.421   Cond. No.                         22.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+--- OLS: Apple ~ SP500 ---
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                  Apple   R-squared:                       0.290
+Model:                            OLS   Adj. R-squared:                  0.283
+Method:                 Least Squares   F-statistic:                     41.60
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):           3.80e-09
+Time:                        12:06:59   Log-Likelihood:                 107.01
+No. Observations:                 104   AIC:                            -210.0
+Df Residuals:                     102   BIC:                            -204.7
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      0.0249      0.009      2.889      0.005       0.008       0.042
+SP500          1.2449      0.193      6.450      0.000       0.862       1.628
+==============================================================================
+Omnibus:                        3.933   Durbin-Watson:                   1.852
+Prob(Omnibus):                  0.140   Jarque-Bera (JB):                3.274
+Skew:                          -0.390   Prob(JB):                        0.195
+Kurtosis:                       3.385   Cond. No.                         22.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+Alpha/Beta table:
+   Stock     Alpha      Beta
+0    IBM  0.006416  0.744809
+1  Apple  0.024863  1.244856
+
+Sample SDs:
+    Series        SD
+0  S&P 500  0.044579
+1      IBM  0.055571
+2    Apple  0.103104
+
+Correlation matrix:
+          SP500       IBM     Apple
+SP500  1.000000  0.597478  0.538232
+IBM    0.597478  1.000000  0.414725
+Apple  0.538232  0.414725  1.000000
+
+Beta identity check:
+   Stock  Beta_from_OLS  Beta_r_sy_over_sx          Diff
+0    IBM       0.744809           0.744809 -2.220446e-16
+1  Apple       1.244856           1.244856 -2.220446e-16
+
+Model summary (glance-like): IBM
+nobs            1.040000e+02
+rsquared        3.569799e-01
+rsquared_adj    3.506758e-01
+fvalue          5.662645e+01
+f_pvalue        2.150202e-11
+aic            -3.489292e+02
+bic            -3.436404e+02
+se_reg          4.477952e-02
+dtype: float64
+
+Model summary (glance-like): Apple
+nobs            1.040000e+02
+rsquared        2.896933e-01
+rsquared_adj    2.827295e-01
+fvalue          4.159995e+01
+f_pvalue        3.798748e-09
+aic            -2.100192e+02
+bic            -2.047304e+02
+se_reg          8.732069e-02
+dtype: float64
+
+95% CI for Beta:
+IBM  : [0.5484879913071837, 0.941129552450925]
+Apple: [0.862028093816426, 1.6276846787184949]
+
+Volatility (SD) vs Beta:
+   Stock        SD      Beta
+0    IBM  0.055571  0.744809
+1  Apple  0.103104  1.244856
+
+=== Q2: mpg ~ horsepower ===
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    mpg   R-squared:                       0.606
+Model:                            OLS   Adj. R-squared:                  0.605
+Method:                 Least Squares   F-statistic:                     599.7
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):           7.03e-81
+Time:                        12:06:59   Log-Likelihood:                -1178.7
+No. Observations:                 392   AIC:                             2361.
+Df Residuals:                     390   BIC:                             2369.
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     39.9359      0.717     55.660      0.000      38.525      41.347
+horsepower    -0.1578      0.006    -24.489      0.000      -0.171      -0.145
+==============================================================================
+Omnibus:                       16.432   Durbin-Watson:                   0.920
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               17.305
+Skew:                           0.492   Prob(JB):                     0.000175
+Kurtosis:                       3.299   Cond. No.                         322.
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+RSE (残差标准差) ≈ 4.90575691954594
+R^2 = 0.6059482578894348   F-stat p-value = 7.031989029403965e-81
+
+99% CI for mean mpg at hp=98:
+        mean  mean_ci_lower  mean_ci_upper
+0  24.467077      23.816686      25.117468
+
+95% PI for a single car at hp=98:
+        mean  obs_ci_lower  obs_ci_upper
+0  24.467077     14.809396     34.124758
+90% CI for slope (horsepower): [-0.1684718817656865, -0.14721758494162085]
+
+=== Q3: Multiple Linear Regression & Correlations ===
+
+Correlation matrix (numeric columns):
+                mpg  cylinders  displacement  ...  weight  acceleration   year
+mpg           1.000     -0.776        -0.804  ...  -0.832         0.422  0.581
+cylinders    -0.776      1.000         0.951  ...   0.897        -0.504 -0.347
+displacement -0.804      0.951         1.000  ...   0.933        -0.544 -0.370
+horsepower   -0.778      0.843         0.897  ...   0.865        -0.689 -0.416
+weight       -0.832      0.897         0.933  ...   1.000        -0.420 -0.308
+acceleration  0.422     -0.504        -0.544  ...  -0.420         1.000  0.283
+year          0.581     -0.347        -0.370  ...  -0.308         0.283  1.000
+
+[7 rows x 7 columns]
+
+cor(mpg, displacement) = -0.804
+
+--- OLS: Multiple Regression ---
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    mpg   R-squared:                       0.824
+Model:                            OLS   Adj. R-squared:                  0.821
+Method:                 Least Squares   F-statistic:                     224.5
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):          1.79e-139
+Time:                        12:07:00   Log-Likelihood:                -1020.5
+No. Observations:                 392   AIC:                             2059.
+Df Residuals:                     383   BIC:                             2095.
+Df Model:                           8                                         
+Covariance Type:            nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+Intercept          -17.9546      4.677     -3.839      0.000     -27.150      -8.759
+C(origin)[T.2.0]     2.6300      0.566      4.643      0.000       1.516       3.744
+C(origin)[T.3.0]     2.8532      0.553      5.162      0.000       1.766       3.940
+cylinders           -0.4897      0.321     -1.524      0.128      -1.121       0.142
+displacement         0.0240      0.008      3.133      0.002       0.009       0.039
+horsepower          -0.0182      0.014     -1.326      0.185      -0.045       0.009
+weight              -0.0067      0.001    -10.243      0.000      -0.008      -0.005
+acceleration         0.0791      0.098      0.805      0.421      -0.114       0.272
+year                 0.7770      0.052     15.005      0.000       0.675       0.879
+==============================================================================
+Omnibus:                       23.395   Durbin-Watson:                   1.291
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               34.452
+Skew:                           0.444   Prob(JB):                     3.30e-08
+Kurtosis:                       4.150   Cond. No.                     8.70e+04
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 8.7e+04. This might indicate that there are
+strong multicollinearity or other numerical problems.
