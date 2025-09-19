@@ -21,6 +21,13 @@ StockBeta <- StockBeta[, -5]
 summary(StockBeta)
 ```
 
+```{r}
+plot(StockBeta$IBM ~ StockBeta$Apple, 
+     main = "Monthly Return Rate of IBM versus Apple",
+     xlab = "Monthly Return Rate (%) of Apple",
+     ylab = "Monthly Return Rate (%) of IBM")
+```
+
 
 ### (a). Make scatter plots of rates of return of IBM versus S&P 500 and of Apple versus S&P 500 and comment on them.
 
