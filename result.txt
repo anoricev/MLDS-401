@@ -1,0 +1,364 @@
+================================================================================
+MLDS 401: HOMEWORK 1
+Group Number: 1
+================================================================================
+
+Loading stock data...
+Loaded 104 observations
+First 5 rows:
+    SP500     IBM   Apple
+0  0.0395  0.0422  0.0039
+1 -0.0313 -0.0608  0.0838
+2  0.0495  0.0206  0.1412
+3 -0.0150 -0.0813 -0.1183
+4  0.0208  0.0319  0.0224
+
+Loading auto data...
+auto = load_auto_data("data/auto.txt")
+
+auto$origin = factor(auto$origin, 1:3, c("US", "Europe", "Japan"))
+
+summary(auto):
+               mpg   cylinders  displacement  ...        year  origin        name
+count   397.000000  397.000000    397.000000  ...  397.000000     397         398
+unique         NaN         NaN           NaN  ...         NaN       3         305
+top            NaN         NaN           NaN  ...         NaN      US  ford pinto
+freq           NaN         NaN           NaN  ...         NaN     248           6
+mean     23.515869    5.458438    193.532746  ...   75.994962     NaN         NaN
+std       7.825804    1.701577    104.379583  ...    3.690005     NaN         NaN
+min       9.000000    3.000000     68.000000  ...   70.000000     NaN         NaN
+25%      17.500000    4.000000    104.000000  ...   73.000000     NaN         NaN
+50%      23.000000    4.000000    146.000000  ...   76.000000     NaN         NaN
+75%      29.000000    8.000000    262.000000  ...   79.000000     NaN         NaN
+max      46.600000    8.000000    455.000000  ...   82.000000     NaN         NaN
+
+[11 rows x 9 columns]
+
+Loaded 398 observations
+
+================================================================================
+PROBLEM 1: Beta Coefficients for Stocks (ACT Problem 2.9)
+================================================================================
+
+(a) Scatter plots with regression lines:
+
+(b) OLS Regression Results:
+
+--- IBM ~ S&P 500 ---
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    IBM   R-squared:                       0.357
+Model:                            OLS   Adj. R-squared:                  0.351
+Method:                 Least Squares   F-statistic:                     56.63
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):           2.15e-11
+Time:                        12:27:02   Log-Likelihood:                 176.46
+No. Observations:                 104   AIC:                            -348.9
+Df Residuals:                     102   BIC:                            -343.6
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      0.0064      0.004      1.454      0.149      -0.002       0.015
+SP500          0.7448      0.099      7.525      0.000       0.548       0.941
+==============================================================================
+Omnibus:                        6.373   Durbin-Watson:                   2.006
+Prob(Omnibus):                  0.041   Jarque-Bera (JB):                9.404
+Skew:                           0.194   Prob(JB):                      0.00908
+Kurtosis:                       4.421   Cond. No.                         22.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+--- Apple ~ S&P 500 ---
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                  Apple   R-squared:                       0.290
+Model:                            OLS   Adj. R-squared:                  0.283
+Method:                 Least Squares   F-statistic:                     41.60
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):           3.80e-09
+Time:                        12:27:02   Log-Likelihood:                 107.01
+No. Observations:                 104   AIC:                            -210.0
+Df Residuals:                     102   BIC:                            -204.7
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      0.0249      0.009      2.889      0.005       0.008       0.042
+SP500          1.2449      0.193      6.450      0.000       0.862       1.628
+==============================================================================
+Omnibus:                        3.933   Durbin-Watson:                   1.852
+Prob(Omnibus):                  0.140   Jarque-Bera (JB):                3.274
+Skew:                          -0.390   Prob(JB):                        0.195
+Kurtosis:                       3.385   Cond. No.                         22.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+--------------------------------------------------
+Summary of Alpha and Beta Coefficients:
+--------------------------------------------------
+Stock  Alpha (Intercept)  Beta (Slope)  R-squared
+  IBM           0.006416      0.744809   0.356980
+Apple           0.024863      1.244856   0.289693
+
+(c) Verification of Beta Identity:
+
+Standard Deviations:
+ Series  Std Dev
+S&P 500 0.044579
+    IBM 0.055571
+  Apple 0.103104
+
+Correlation Matrix:
+        SP500     IBM   Apple
+SP500  1.0000  0.5975  0.5382
+IBM    0.5975  1.0000  0.4147
+Apple  0.5382  0.4147  1.0000
+
+Beta Identity Check (β = ρ * σ_stock / σ_market):
+Stock  Beta (OLS)  Beta (Formula)   Difference
+  IBM    0.744809        0.744809 2.220446e-16
+Apple    1.244856        1.244856 2.220446e-16
+
+(d) Interpretation:
+
+IBM Beta = 0.7448
+  - For every 1% change in S&P 500 returns, IBM returns change by 0.7448%
+  - IBM is less volatile than the market
+  - R² = 0.3570 (35.70% of variation explained)
+
+Apple Beta = 1.2449
+  - For every 1% change in S&P 500 returns, Apple returns change by 1.2449%
+  - Apple is more volatile than the market
+  - R² = 0.2897 (28.97% of variation explained)
+
+95% Confidence Intervals for Beta:
+IBM:   [0.5485, 0.9411]
+Apple: [0.8620, 1.6277]
+
+================================================================================
+PROBLEM 2: Simple Linear Regression (JWHT Problem 8)
+================================================================================
+
+Preparing data (making origin a factor)...
+
+Summary of auto dataset:
+              mpg   cylinders  ...  acceleration        year
+count  397.000000  397.000000  ...    397.000000  397.000000
+mean    23.515869    5.458438  ...     15.555668   75.994962
+std      7.825804    1.701577  ...      2.749995    3.690005
+min      9.000000    3.000000  ...      8.000000   70.000000
+25%     17.500000    4.000000  ...     13.800000   73.000000
+50%     23.000000    4.000000  ...     15.500000   76.000000
+75%     29.000000    8.000000  ...     17.100000   79.000000
+max     46.600000    8.000000  ...     24.800000   82.000000
+
+[8 rows x 7 columns]
+
+Origin distribution:
+origin
+US        0
+Europe    0
+Japan     0
+Name: count, dtype: int64
+
+--------------------------------------------------
+Fitting model: mpg ~ horsepower
+--------------------------------------------------
+
+SUMMARY of regression model:
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    mpg   R-squared:                       0.606
+Model:                            OLS   Adj. R-squared:                  0.605
+Method:                 Least Squares   F-statistic:                     599.7
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):           7.03e-81
+Time:                        12:27:02   Log-Likelihood:                -1178.7
+No. Observations:                 392   AIC:                             2361.
+Df Residuals:                     390   BIC:                             2369.
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     39.9359      0.717     55.660      0.000      38.525      41.347
+horsepower    -0.1578      0.006    -24.489      0.000      -0.171      -0.145
+==============================================================================
+Omnibus:                       16.432   Durbin-Watson:                   0.920
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               17.305
+Skew:                           0.492   Prob(JB):                     0.000175
+Kurtosis:                       3.299   Cond. No.                         322.
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+Creating scatterplot with fitted model (using plot and abline equivalent)...
+
+Diagnostic plots for model assumption checking:
+
+--------------------------------------------------
+ANSWERS TO QUESTIONS:
+--------------------------------------------------
+
+(a) Estimated Regression Equation:
+    mpg = 39.9359 + -0.1578 * horsepower
+
+(b) Interpretation of Slope:
+    The slope is -0.1578, meaning that for each
+    additional unit of horsepower, MPG decreases by 0.1578 miles per gallon.
+
+(c) Uncertainty of Slope Estimate:
+    Standard error of slope: 0.0064
+    t-statistic: -24.4891
+    p-value: 7.0320e-81
+
+(d) Residual Standard Error:
+    RSE = 4.9058
+    This represents the average deviation of observed MPG values from the fitted line.
+
+(e) Significance of Relationship:
+    F-statistic: 599.7177, p-value: 7.0320e-81
+    The p-value < 0.05 indicates a statistically significant relationship.
+
+(f) Variation Explained (R-squared):
+    R² = 0.6059
+    60.59% of the variation in MPG is explained by horsepower.
+
+(g) Predicted MPG at horsepower = 98:
+    Predicted MPG = 24.4671
+
+(h) 95% Prediction Interval for individual car at hp=98:
+    [14.8094, 34.1248]
+    Use PI when predicting MPG for a specific car.
+
+(i) 99% Confidence Interval for mean MPG at hp=98:
+    [23.8167, 25.1175]
+    Use CI when estimating the average MPG for all cars with hp=98.
+
+(j) 90% Confidence Interval for slope:
+    [-0.1685, -0.1472]
+
+(k) Model Assumption Violations:
+    From the diagnostic plots:
+    - Residuals vs Fitted: Shows slight non-linearity (curved pattern)
+    - Q-Q Plot: Some deviation from normality in the tails
+    - Scale-Location: Mild heteroscedasticity (non-constant variance)
+    - Suggestion: Consider transformations or polynomial terms
+
+================================================================================
+PROBLEM 3: Multiple Linear Regression (JWHT Problem 9)
+================================================================================
+
+(a) Scatterplot Matrix:
+
+Relationships observed:
+- Strong negative relationships: mpg with weight, displacement, cylinders
+- Strong positive relationship: mpg with year
+- Moderate negative relationship: mpg with horsepower
+- Weak relationship: mpg with acceleration
+
+(b) Correlation Matrix:
+
+Correlation coefficients with MPG:
+mpg             1.000000
+year            0.581469
+acceleration    0.422297
+cylinders      -0.776260
+horsepower     -0.778427
+displacement   -0.804443
+weight         -0.831739
+
+Correlation between MPG and displacement: -0.8044
+This strong negative correlation (-0.805) indicates that larger engines have lower fuel efficiency.
+
+(c) Multiple Regression Model:
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    mpg   R-squared:                       0.824
+Model:                            OLS   Adj. R-squared:                  0.821
+Method:                 Least Squares   F-statistic:                     224.5
+Date:                Fri, 19 Sep 2025   Prob (F-statistic):          1.79e-139
+Time:                        12:27:06   Log-Likelihood:                -1020.5
+No. Observations:                 392   AIC:                             2059.
+Df Residuals:                     383   BIC:                             2095.
+Df Model:                           8                                         
+Covariance Type:            nonrobust                                         
+=======================================================================================
+                          coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------------
+Intercept             -17.9546      4.677     -3.839      0.000     -27.150      -8.759
+C(origin)[T.Europe]     2.6300      0.566      4.643      0.000       1.516       3.744
+C(origin)[T.Japan]      2.8532      0.553      5.162      0.000       1.766       3.940
+cylinders              -0.4897      0.321     -1.524      0.128      -1.121       0.142
+displacement            0.0240      0.008      3.133      0.002       0.009       0.039
+horsepower             -0.0182      0.014     -1.326      0.185      -0.045       0.009
+weight                 -0.0067      0.001    -10.243      0.000      -0.008      -0.005
+acceleration            0.0791      0.098      0.805      0.421      -0.114       0.272
+year                    0.7770      0.052     15.005      0.000       0.675       0.879
+==============================================================================
+Omnibus:                       23.395   Durbin-Watson:                   1.291
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               34.452
+Skew:                           0.444   Prob(JB):                     3.30e-08
+Kurtosis:                       4.150   Cond. No.                     8.70e+04
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 8.7e+04. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+--------------------------------------------------
+ANSWERS TO QUESTIONS:
+--------------------------------------------------
+
+(c) Statistical Significance of Overall Model:
+    F-statistic: 224.4507
+    Prob (F-statistic): 1.7897e-139
+    Conclusion: Yes, there is a statistically significant relationship
+    between the predictors and MPG (p < 0.001).
+
+(d) Statistically Significant Predictors (p < 0.05):
+    Significant predictors:
+    - C(origin)[T.Europe]: p-value = 4.7204e-06
+    - C(origin)[T.Japan]: p-value = 3.9332e-07
+    - displacement: p-value = 1.8627e-03
+    - weight: p-value = 6.3756e-22
+    - year: p-value = 2.3329e-40
+
+(e) Year Coefficient Interpretation:
+    Year coefficient: 0.7770
+    Interpretation: Holding all other variables constant,
+    each year newer a car is, MPG increases by 0.7770 miles per gallon.
+    This reflects improvements in fuel efficiency technology over time.
+
+(f) Displacement Coefficient Interpretation:
+    Displacement coefficient: 0.023979
+    Interpretation: Holding all other variables constant,
+    each cubic inch increase in engine displacement
+    increases MPG by 0.023979 miles per gallon.
+    Note: In the multiple regression, displacement's effect is
+    significant after accounting for other variables.
+
+--------------------------------------------------
+MODEL DIAGNOSTICS:
+--------------------------------------------------
+R-squared: 0.8242
+Adjusted R-squared: 0.8205
+AIC: 2058.93
+BIC: 2094.67
+
+Variance Inflation Factors (check for multicollinearity):
+    Variable        VIF
+   cylinders 115.977772
+displacement  86.485956
+  horsepower  60.256575
+      weight 137.471756
+acceleration  69.400877
+        year 109.320016
+
+Note: VIF > 10 indicates potential multicollinearity issues.
