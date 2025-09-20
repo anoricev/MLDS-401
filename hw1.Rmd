@@ -1,7 +1,7 @@
 ---
 title: "MLDS 401: Homework 1"
 output: pdf_document
-date: "2025-09-18"
+date: "2025-09-19"
 author: Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin
 ---
 
@@ -9,7 +9,7 @@ author: Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Question 1
+# Question 1
 
 ```{r}
 library(readr)
@@ -23,7 +23,7 @@ summary(StockBeta)
 ```
 
 
-### (a). Make scatter plots of rates of return of IBM versus S&P 500 and of Apple versus S&P 500 and comment on them.
+## (a). Make scatter plots of rates of return of IBM versus S&P 500 and of Apple versus S&P 500 and comment on them.
 
 ```{r}
 plot(StockBeta$IBM ~ StockBeta$"S&P 500", 
@@ -42,7 +42,7 @@ For the IBM vs. S&P 500, there is a positive and slightly linear relationship be
 
 For the Apple vs. S&P 500, there is still a positive relationship between the two variables, but the data is slightly more spread out as compared to the IBM plot.
 
-### (b). Calculate the $\beta$'s for IBM and Apple with reference to S&P 500. Comment on the relative magnitudes of the $\beta$'s. Which stock had a higher expected return relative to S&P 500?
+## (b). Calculate the $\beta$'s for IBM and Apple with reference to S&P 500. Comment on the relative magnitudes of the $\beta$'s. Which stock had a higher expected return relative to S&P 500?
 
 ```{r}
 ibm_fit <- lm(StockBeta$IBM ~ StockBeta$"S&P 500")
@@ -53,7 +53,7 @@ summary(apple_fit)$coefficients
 ```
 The magnitude of the Apple beta was greater than that of the IBM beta, meaning that Apple had a higher expected rate of return as compared to IBM relative to the S&P 500.
 
-### (c). Calculate the sample standard deviations (SDs) of the rates of return for S&P 500, IBM and Apple. Also calculate the correlation matrix. Check that $\beta$ = $rs_y/s_x$ for each stock where $r$ is the correlation coefficient between S&P 500 and the given stock, $s_x$ is the sample SD of S&P 500 and $s_y$ is the sample SD of the given stock.
+## (c). Calculate the sample standard deviations (SDs) of the rates of return for S&P 500, IBM and Apple. Also calculate the correlation matrix. Check that $\beta$ = $rs_y/s_x$ for each stock where $r$ is the correlation coefficient between S&P 500 and the given stock, $s_x$ is the sample SD of S&P 500 and $s_y$ is the sample SD of the given stock.
 
 ```{r}
 sd_ibm <- sd(StockBeta$IBM)
@@ -81,11 +81,11 @@ beta_apple_check
 ```
 The predicted betas from IBM and Apple match with the product of the correlation coefficient and the ratio of the standard deviations, which confirms the predicted beta.
 
-### (d). Explain based on the statistics calculated how a higher expected return is accompanied by higher volatility of the Apple stock.
+## (d). Explain based on the statistics calculated how a higher expected return is accompanied by higher volatility of the Apple stock.
 The higher standard deviation associated with the Apple stock means that there is a higher volatility that goes along with the higher expected rate of return. The beta value for Apple is also greater than 1, meaning that there is higher risk and possibly higher return associated with the Apple stock.
 
 
-## Question 2
+# Question 2
 
 ```{r}
 auto <- read.table("~/Desktop/401-data/auto.txt", head=T)
@@ -105,38 +105,40 @@ plot(auto$horsepower, auto$mpg,
      ylab = "Miles per Gallon (mpg)",
      main = "Regression of mpg on horsepower by origin",
      pch = 20, col = auto$origin)
-abline(model)
+abline(model, col = "blue", lwd = 2)
+legend("topright", legend = levels(auto$origin),
+       col = 1:3, pch = 20)
 ```
 
-### (a). What is the estimated regression equation?
+## (a). What is the estimated regression equation?
 mpg = 39.9 - .158 * horsepower
 
-### (b) What does the slope tell you?
+## (b) What does the slope tell you?
 The slope tells us that for every addition unit of horsepower, the miles per gallon will decrease by roughly .16 miles per gallon.
 
-### (c) How much uncertainty is associated with the slope estimate?
+## (c) How much uncertainty is associated with the slope estimate?
 The slope estimate has a standard error of .006 which compared to the magnitude of the slope is not a large error. 
 
-### (d) What does the residual standard error tell you?
+## (d) What does the residual standard error tell you?
 The residual standard error is 4.906 miles per gallon on 390 degrees of freedom. This represents the standard deviation of the residuals to the best fit line. It describes generally how spread out the data is from the best fit line for the response variable. This is significant when compared to the total range of the miles per gallon at around 35 miles per gallon.
 
-### (e) Using this model, is there a significant relationship between mpg and horsepower?
+## (e) Using this model, is there a significant relationship between mpg and horsepower?
 The p-value of this relationship is smaller than 2.2e-16 meaning that it is very very likely that there is a relationship between mpg and horsepower, because the null hypothesis assumes a slope of 0 or no relationship.
 
-### (f) What fraction of the variation in mpg is explained by using this linear function of horsepower?
+## (f) What fraction of the variation in mpg is explained by using this linear function of horsepower?
 The fraction of variation in mpg that can be explained by the linear function of horsepower is roughly 60.6% as described by the R^2 statistic.
 
-### (g) What is the predicted mpg associated with a horsepower of 98?
+## (g) What is the predicted mpg associated with a horsepower of 98?
 The predicted mpg associated with a horsepower of 98 is 24.5 miles per gallon using the equation found in part a. 
 
-### (h) What is the 95% prediction interval for the predicted mpg associated with a horsepower of 98? For what types of questions would it be appropriate to look at the PI?
+## (h) What is the 95% prediction interval for the predicted mpg associated with a horsepower of 98? For what types of questions would it be appropriate to look at the PI?
 
 ```{r}
 predict(model, data.frame(horsepower = 98), interval = "prediction")
 ```
 The 95% prediction interval for the predicted mpg associated with a horsepower of 98 would be from 14.8 to 34.1 miles per gallon. It would be appropriate to look at a prediction interval when trying to estimate the performance of a specific car where you know the horsepower.
 
-### (i) What is the 99% confidence interval for the mean prediction of mpg when horse- power is 98? For what types of questions would it be appropriate to look at the CI for mean prediction?
+## (i) What is the 99% confidence interval for the mean prediction of mpg when horse- power is 98? For what types of questions would it be appropriate to look at the CI for mean prediction?
 
 ```{r}
 predict(model, data.frame(horsepower = 98), interval = "confidence", level = 0.99)
@@ -144,46 +146,49 @@ predict(model, data.frame(horsepower = 98), interval = "confidence", level = 0.9
 The 99% confidence interval for the mean prediction of mpg when horsepower is 98 is 23.8 to 25.1 miles per gallon. It would be appropriate to look at the confidence interval for mean prediction when you want to look at the performance for all cars.
 
 
-### (j) What is a 90% confidence interval for the slope?
+## (j) What is a 90% confidence interval for the slope?
 ```{r}
 confint(model, level = .90)
 ```
 The 90% confidence interval for the slope is -.168 to -.147.
 
-### (k) In looking at the scatterplot and fitted model, note any violations of the model assumptions
+## (k) In looking at the scatterplot and fitted model, note any violations of the model assumptions
 The model assumes that the data is linear, which is not the case when observing the data visually. The data follows an negative exponential pattern.
 
-## Question 3
+# Question 3
+
+## a) (3 points) Based on the scatterplots, comment on the relationships between the predictors and mpg.
 
 ```{r}
 library(psych)
 pairs.panels(auto[,c(2:8,1)], stars=T, density=T) # part a
 ```
 
-### a) (3 points) Based on the scatterplots, comment on the relationships between the predictors and mpg.
+For cylinders, displacement, horsepower, and weight, there is a strong negative relationship and the points are concentrated around the fit line. For year and origin, there is a moderate positive relationship and the points are more dispersed around the best fit line. For acceleration, there is little to no pattern to the data, demonstrated by a weak correlation coefficient.
+
+## (b) (2 points) What is the correlation between mpg and displacement and what does it tell you? Which variables have significant relationships with mpg?
 
 ```{r}
 round(cor(auto[,1:7], use="pair"),4) # part b
 ```
-For cylinders, displacement, horsepower, and weight, there is a strong negative relationship and the points are concentrated around the fit line. For year and origin, there is a moderate positive relationship and the points are more dispersed around the best fit line. For acceleration, there is little to no pattern to the data, demonstrated by a weak correlation coefficient.
+
+For cylinders, displacement, horsepower, and weight compared to mpg, there is a strong negative relationship, with weight having the strongest correlation. For year, and origin, there is a moderate positive correlation with mpg. For acceleration, there is a weak positive correlation with mpg. The correlation for mpg is -.804, meaning that as displacement increases, mpg decreases strongly.
 
 
-### (b) (2 points) What is the correlation between mpg and displacement and what does it tell you? Which variables have significant relationships with mpg?
+## (c) (2 points) Is there a statistically significant relationship between the predictors and the response? (Hint: do the F test using the multiple regression output)
 
 ```{r}
 fit = lm(mpg~., auto[,1:8]) # part c
 summary(fit)
 ```
-For cylinders, displacement, horsepower, and weight compared to mpg, there is a strong negative relationship, with weight having the strongest correlation. For year, and origin, there is a moderate positive correlation with mpg. For acceleration, there is a weak positive correlation with mpg. The correlation for mpg is -.804, meaning that as displacement increases, mpg decreases strongly.
 
-### (c) (2 points) Is there a statistically significant relationship between the predictors and the response? (Hint: do the F test using the multiple regression output)
 The F-statistic is 224.5 and the p-value is less than 2.2e-16, meaning that there is a statistically significant response between the predictors and the response because there is a large difference between group means in relation to the variation between the groups.
 
-### (d) (2 points) Which predictors appear to have a statistically significant relationship to the response in the multiple regression?
+## (d) (2 points) Which predictors appear to have a statistically significant relationship to the response in the multiple regression?
 The predictors that have a statistically significant relationship according to a cutoff of p = .05, would be all except cylinders and acceleration. Displacement has a weaker significance compared to the other predictors, but still falls below the p-value cutoff.
 
-### (e) (2 points) What does the slope coefficient for the year variable suggest?
+## (e) (2 points) What does the slope coefficient for the year variable suggest?
 The slope coefficient for the year variable suggests that while holding all other predictors constant, a increase of one year will result in an additional .777 miles per gallon on average across the data set.
 
-### (f) (2 points) What does the slope coefficient for the displacement variable suggest?
+## (f) (2 points) What does the slope coefficient for the displacement variable suggest?
 The slope coefficient for the displacement variable suggests that while holding all other predictors constant, a increase of one unit of displacement will result in an additional .024 miles per gallon on average across the data set.
