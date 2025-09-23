@@ -114,7 +114,7 @@ legend("topright", legend = levels(auto$origin),
 mpg = 39.9 - .158 * horsepower
 
 ## (b) What does the slope tell you?
-The slope tells us that for every addition unit of horsepower, the miles per gallon will decrease by roughly .16 miles per gallon.
+The slope tells us that for every addition unit of horsepower, the expected miles per gallon will decrease by roughly .16 miles per gallon.
 
 ## (c) How much uncertainty is associated with the slope estimate?
 The slope estimate has a standard error of .006 which compared to the magnitude of the slope is not a large error. 
@@ -188,7 +188,7 @@ The F-statistic is 224.5 and the p-value is less than 2.2e-16, meaning that ther
 The predictors that have a statistically significant relationship according to a cutoff of p = .05, would be all except cylinders and acceleration. Displacement has a weaker significance compared to the other predictors, but still falls below the p-value cutoff.
 
 ## (e) (2 points) What does the slope coefficient for the year variable suggest?
-The slope coefficient for the year variable suggests that while holding all other predictors constant, a increase of one year will result in an additional .777 miles per gallon on average across the data set.
+The slope coefficient for the year variable suggests that while holding all other predictors constant, a increase of one year will result in an additional expected .777 miles per gallon on average across the data set.
 
 ## (f) (2 points) What does the slope coefficient for the displacement variable suggest?
-The slope coefficient for the displacement variable suggests that while holding all other predictors constant, a increase of one unit of displacement will result in an additional .024 miles per gallon on average across the data set.
+The slope coefficient for the displacement variable suggests that while holding all other predictors constant, a increase of one unit of displacement will result in an additional expected .024 miles per gallon on average across the data set.
