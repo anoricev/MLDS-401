@@ -32,13 +32,14 @@ plot(StockBeta$IBM ~ StockBeta$"S&P 500",
      ylab = "Monthly Return Rate (%) of IBM")
 ```
 
+For the IBM vs. S&P 500, there is a positive and slightly linear relationship between the variables. As the monthly rate of return for the S&P 500 increases, the expected monthly rate of return for IBM increases as well. 
+
 ```{r}
 plot(StockBeta$Apple ~ StockBeta$"S&P 500", 
      main = "Monthly Return Rate of Apple versus S&P 500",
      xlab = "Monthly Return Rate (%) of S&P 500",
      ylab = "Monthly Return Rate (%) of Apple")
 ```
-For the IBM vs. S&P 500, there is a positive and slightly linear relationship between the variables. As the monthly rate of return for the S&P 500 increases, the expected monthly rate of return for IBM increases as well. 
 
 For the Apple vs. S&P 500, there is still a positive relationship between the two variables, but the data is slightly more spread out as compared to the IBM plot.
 
