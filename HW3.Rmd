@@ -1,0 +1,330 @@
+---
+title: "MLDS 401: Homework 3"
+author: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin"
+date: "2025-10-01"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    number_sections: true
+fontsize: 11pt
+geometry: margin=1in
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.height = 4.4,
+  fig.width  = 6.8,
+  fig.align  = "center",
+  message = FALSE,
+  warning = FALSE
+)
+set.seed(2025)
+options(stringsAsFactors = FALSE)
+```
+ 
+```{r packages}
+# Install once in Console if missing:
+# install.packages(c("ggplot2","dplyr","broom","sandwich","lmtest","knitr","ISLR2"))
+need <- c("ggplot2","dplyr","broom","sandwich","lmtest","knitr","ISLR2")
+miss <- setdiff(need, rownames(installed.packages()))
+if(length(miss)) install.packages(miss, quiet = TRUE)
+invisible(lapply(intersect(need, rownames(installed.packages())),
+                library, character.only = TRUE))
+
+options(contrasts = c("contr.treatment", "contr.poly"))
+```
+
+```{r data}
+# data loading
+data_dir  <- "E:/mlds/MLDS 401 Machine Learning/course_files_export/Homework/HW3"
+auto_path <- if (file.exists(file.path(data_dir, "auto.txt"))) file.path(data_dir, "auto.txt") else "auto.txt"
+part_path <- if (file.exists(file.path(data_dir, "part.csv"))) file.path(data_dir, "part.csv") else "part.csv"
+
+# Load files
+auto <- read.table(auto_path, header = TRUE, na.strings = c("NA","?",""))
+part <- read.csv(part_path)
+
+# Cleaning
+names(auto) <- trimws(names(auto))
+auto$origin <- factor(auto$origin, levels = 1:3, labels = c("US","Europe","Japan"))
+auto$lmpg   <- log(auto$mpg)
+auto$lw     <- log(auto$weight)
+
+# Sanity checks
+stopifnot(all(c("mpg","weight","year","origin") %in% names(auto)))
+stopifnot(all(c("y","x","tx","wc") %in% names(part)))
+
+# Variables for Q6
+d <- transform(part,
+  tx  = as.integer(tx),
+  ly  = log(y + 1),
+  lx  = log(x + 1),
+  lwc = log(wc + 1)
+)
+```
+
+# 1. (JWHT 3.9) `auto` Data
+
+```{r q1a}
+# 1(a): Origin breakdown
+tab_origin  <- table(auto$origin, useNA = "ifany")
+prop_origin <- prop.table(tab_origin)
+knitr::kable(
+  as.data.frame.matrix(rbind(Freq = tab_origin, Prop = round(prop_origin,3))),
+  caption = "Origin: frequency and proportion"
+)
+```
+
+```{r q1b}
+# 1(b): OLS with basic diagnostics (complete cases to avoid NA plot issues)
+auto_cc <- auto[complete.cases(auto[c("mpg","origin","weight","year")]), ]
+
+m1 <- lm(mpg ~ origin + weight + year, data = auto_cc)
+tidy_m1   <- broom::tidy(m1, conf.int = TRUE)
+glance_m1 <- broom::glance(m1)
+knitr::kable(tidy_m1, digits = 4, caption = "Model 1: OLS for mpg")
+knitr::kable(glance_m1, digits = 4, caption = "Model 1: fit statistics")
+
+par(mfrow = c(2,2)); plot(m1); par(mfrow = c(1,1))
+```
+
+```{r q1c}
+# 1(c): Log-linear with quadratic year
+auto_cc2 <- auto[complete.cases(auto[c("lmpg","origin","lw","year")]), ]
+
+m2 <- lm(lmpg ~ origin + lw + year + I(year^2), data = auto_cc2)
+tidy_m2   <- broom::tidy(m2, conf.int = TRUE)
+glance_m2 <- broom::glance(m2)
+knitr::kable(tidy_m2, digits = 4, caption = "Model 2: OLS for log(mpg)")
+knitr::kable(glance_m2, digits = 4, caption = "Model 2: fit statistics")
+
+par(mfrow = c(2,2)); plot(m2); par(mfrow = c(1,1))
+```
+
+```{r q1d}
+# 1(d): Extremum of the quadratic effect and visualization
+co <- coef(m2); b1 <- unname(co[["year"]]); b2 <- unname(co[["I(year^2)"]])
+year_star <- -b1/(2*b2)
+
+grid <- data.frame(year = seq(min(auto_cc2$year, na.rm=TRUE),
+                              max(auto_cc2$year, na.rm=TRUE), by = 0.1))
+grid$effect <- b1*grid$year + b2*grid$year^2
+
+ggplot(grid, aes(year, effect)) +
+  geom_line() +
+  geom_vline(xintercept = year_star, linetype = 2) +
+  labs(title = "Quadratic effect of model year on log(mpg)",
+       subtitle = paste0("Extremum at year* ≈ ", round(year_star, 2)),
+       x = "Model year", y = "β1·year + β2·year^2")
+
+year_star
+```
+
+```{r q1e, echo=FALSE}
+cat("The coefficient on 'weight' is negative in both levels and logs, indicating higher weight is associated with lower fuel economy (mpg).")
+```
+
+# 2. (ACT 3.2) Hat Matrix for SLR
+
+```{r q2}
+# Q2: Hat matrix for simple linear regression (with intercept)
+
+# Use 'year' with complete cases
+stopifnot("year" %in% names(auto))
+x <- auto$year
+x <- x[!is.na(x)]
+n <- length(x); stopifnot(n >= 2)
+
+# Design matrix: intercept + x
+X <- cbind(1, x)
+
+# Definition: H = X (X'X)^{-1} X'
+XtX  <- t(X) %*% X
+H    <- X %*% solve(XtX) %*% t(X)
+
+# Closed form: h_ij = 1/n + (x_i - xbar)(x_j - xbar)/Sxx
+xbar <- mean(x)
+Sxx  <- sum((x - xbar)^2); stopifnot(Sxx > 0)
+H2   <- outer(x, x, function(xi, xj) 1/n + ((xi - xbar)*(xj - xbar))/Sxx)
+
+# Diagnostics
+checks <- c(
+  `max|H - H_closed|` = max(abs(H - H2)),
+  symmetry            = max(abs(H - t(H))),
+  idempotent          = max(abs(H %*% H - H)),
+  `trace(H)=p=2`      = abs(sum(diag(H)) - 2),
+  `row sums = 1`      = max(abs(rowSums(H) - 1)),
+  `col sums = 1`      = max(abs(colSums(H) - 1))
+)
+knitr::kable(as.data.frame(t(checks)), digits = 6,
+             caption = "Hat matrix properties (≈ 0 except exact traces/sums).")
+
+# Leverages and closed-form agreement
+lev      <- diag(H)
+lev_theo <- 1/n + (x - xbar)^2 / Sxx
+lev_err  <- max(abs(lev - lev_theo))
+
+knitr::kable(
+  data.frame(
+    `max|h_ii - closed form|` = lev_err,
+    `mean(h_ii)`              = mean(lev),
+    `sum(h_ii)=trace(H)`      = sum(lev)
+  ),
+  digits = 6,
+  caption = "Leverage diagnostics."
+)
+
+# Six-number summary (avoid summary()/dimnames issues)
+lev_stats <- c(
+  Min  = min(lev),
+  Q1   = as.numeric(quantile(lev, 0.25)),
+  Med  = median(lev),
+  Mean = mean(lev),
+  Q3   = as.numeric(quantile(lev, 0.75)),
+  Max  = max(lev)
+)
+knitr::kable(as.data.frame(t(lev_stats)), digits = 6,
+             caption = "Leverage distribution (h_ii).")
+```
+
+# 3. (ACT 3.6) GLS Mean and Covariance (Illustration)
+
+```{r q3}
+# Q3: GLS mean & covariance — illustration with diagonal Sigma (WLS=GLS)
+
+# Preconditions
+stopifnot(all(c("mpg","weight") %in% names(auto)))
+
+# Complete cases
+dat <- subset(auto, !is.na(mpg) & !is.na(weight))
+stopifnot(nrow(dat) >= 3)
+
+# Design and response
+yg <- dat$mpg
+Xg <- cbind(1, dat$weight)
+
+# Heteroskedastic pattern: var proportional to weight^2 (illustrative)
+wvar_raw <- (dat$weight / mean(dat$weight))^2
+wvar <- pmax(wvar_raw, .Machine$double.eps)
+
+# Σ = diag(wvar), Σ^{-1} = diag(1/wvar)
+Winv <- diag(1 / wvar)
+
+# GLS estimator: beta = (X' Σ^{-1} X)^{-1} X' Σ^{-1} y
+XtWinvX <- t(Xg) %*% Winv %*% Xg
+XtWinvy <- t(Xg) %*% Winv %*% yg
+beta_gls <- solve(XtWinvX, XtWinvy)
+rownames(beta_gls) <- c("(Intercept)","weight")
+
+# Covariance: Var(beta_hat) = sigma^2 * (X' Σ^{-1} X)^{-1}
+e_gls   <- yg - Xg %*% beta_gls
+rss_gls <- as.numeric(t(e_gls) %*% Winv %*% e_gls)
+p       <- ncol(Xg); n <- nrow(Xg)
+sigma2_hat <- rss_gls / (n - p)
+cov_gls <- sigma2_hat * solve(XtWinvX)
+
+# Present coefficients & SEs
+res_gls <- data.frame(
+  term     = rownames(beta_gls),
+  estimate = as.numeric(beta_gls),
+  SE       = sqrt(diag(cov_gls))
+)
+knitr::kable(res_gls, digits = 6,
+             caption = "GLS estimates and approximate SEs (diagonal Σ).")
+
+# Sanity check: WLS equals GLS when Σ is diagonal
+wls <- lm(yg ~ Xg[,2], weights = 1/wvar)
+res_wls <- data.frame(term = names(coef(wls)), estimate = as.numeric(coef(wls)))
+knitr::kable(res_wls, digits = 6,
+             caption = "WLS coefficients (should match GLS under diagonal Σ).")
+
+# Show (X' Σ^{-1} X)^{-1} (information matrix inverse up to sigma^2)
+inv_info <- solve(XtWinvX)
+knitr::kable(round(inv_info, 6),
+             caption = "(X' Σ^{-1} X)^{-1} — information matrix inverse (up to σ^2).")
+```
+
+# 4. WLS Intuition with n = 2
+
+```{r q4}
+sig1 <- 4; sig2 <- 1
+w1 <- (1/sig1^2) / (1/sig1^2 + 1/sig2^2); w2 <- 1 - w1
+knitr::kable(t(c(w1 = w1, w2 = w2)), digits = 6,
+             caption = "Optimal unbiased weights")
+```
+
+# 5. Quadratic Regression: Uncentered vs Centered Equivalence
+
+```{r q5}
+# Uncentered
+fit_unc  <- lm(mpg ~ year + I(year^2), data = auto)
+coef_unc <- coef(fit_unc)
+
+# Correlation before centering
+cor_raw <- cor(auto$year, auto$year^2)
+
+# Centering
+xbar <- mean(auto$year, na.rm = TRUE)
+auto$yc <- auto$year - xbar
+cor_cen <- cor(auto$yc, auto$yc^2)
+
+# Visual
+g1 <- ggplot(auto, aes(year, I(year^2))) + geom_point(alpha=.6) + theme_minimal() +
+  labs(title="Raw: year^2 vs year", x="year", y="year^2")
+g2 <- ggplot(auto, aes(yc, I(yc^2))) + geom_point(alpha=.6) + theme_minimal() +
+  labs(title="Centered: (year-mean)^2 vs (year-mean)", x="year - mean(year)", y="(year - mean)^2")
+g1; g2
+
+# Centered fit and mapping back
+fit_cen  <- lm(mpg ~ yc + I(yc^2), data = auto)
+coef_cen <- coef(fit_cen)
+
+g0 <- coef_cen["(Intercept)"]; g1c <- coef_cen["yc"]; g2c <- coef_cen["I(yc^2)"]
+beta0_hat <- g0 - g1c*xbar + g2c*xbar^2
+beta1_hat <- g1c - 2*g2c*xbar
+beta2_hat <- g2c
+
+eq_table <- rbind(
+  uncentered            = coef_unc,
+  recovered_from_center = c("(Intercept)"=beta0_hat, "year"=beta1_hat, "I(year^2)"=beta2_hat)
+)
+knitr::kable(eq_table, digits = 6, caption = "Uncentered vs recovered-from-centered coefficients")
+
+knitr::kable(t(c(cor_before = cor_raw, cor_after = cor_cen, mean_year = xbar)),
+             digits = 6, caption = "Centering reduces correlation between x and x^2")
+```
+
+# 6. Social-Media Contest and Post-Period Spending (`part.csv`)
+
+```{r q6}
+# Model 1
+m6_1 <- lm(ly ~ lx + tx, data = d)
+coeftest_m6_1 <- lmtest::coeftest(m6_1, vcov = sandwich::vcovHC(m6_1, type = "HC1"))
+knitr::kable(broom::tidy(m6_1, conf.int = TRUE), digits = 4, caption = "Model 1: OLS")
+knitr::kable(broom::tidy(coeftest_m6_1), digits = 4, caption = "Model 1: Robust (HC1) t-tests")
+
+# Model 2
+m6_2 <- lm(ly ~ lx + tx + lwc, data = d)
+coeftest_m6_2 <- lmtest::coeftest(m6_2, vcov = sandwich::vcovHC(m6_2, type = "HC1"))
+knitr::kable(broom::tidy(m6_2, conf.int = TRUE), digits = 4, caption = "Model 2: OLS")
+knitr::kable(broom::tidy(coeftest_m6_2), digits = 4, caption = "Model 2: Robust t-tests")
+
+# 6(c)
+tx_row <- broom::tidy(coeftest_m6_1) %>% dplyr::filter(term == "tx")
+knitr::kable(tx_row, digits = 4, caption = "tx effect (Model 1, robust)")
+
+# 6(d)
+b_tx <- coef(m6_1)["tx"]
+times <- unname(exp(b_tx))
+knitr::kable(t(data.frame(`multiplier on (y+1)` = times)), digits = 4)
+
+# (e)-(h)
+cat("Adding log(wc+1) markedly attenuates the raw `tx` effect, consistent with omitted-variable bias in Model 1. In Model 2, `lwc` is positive and significant with robust SE, implying that conditional on prior spend `x`, greater word count predicts higher post-period spend. Managerially, contests should incentivize higher-quality, and segment by prior spend for ROI; validate via randomized A/B tests.")
+```
+
+# Appendix: Session Info
+
+```{r session}
+sessionInfo()
+```
