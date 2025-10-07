@@ -190,7 +190,27 @@ exp(.24438)-1
 ```
 
 ## (d). Using Model 1, post-period spending is how many times greater for those who participate than for those who do not? Note that this question asks about spending and not log spending. Another way to ask this question is: suppose there are two people with identical pre-period spending, but one participates and the other does not. More precisely, if \(y_1\) is the post-contest spending of a participant and \(y_0\) is the post-contest spending of a non-participant, how many times greater is \((y_1 + 1)\) than \((y_0 + 1)\)?
+model 1:  
+log(y + 1) = β0 + β1 log(x + 1) + β2tx + e
 
+For a participant, where tx = 1, we get:
+log(y1 + 1) = β0 + β1 log(x + 1) + β2 + e
+
+For a non-participant, where tx = 0, we get:
+log(y0 + 1) = β0 + β1 log(x + 1) + e
+
+
+The only difference between the two equations is the β2 term.   
+
+If we subtract the two equations, we get:
+
+log(y1+1) - log(y0+1) = β0 + β1 log(x + 1) + β2 + e - (β0 + β1 log(x + 1) + e) = β2
+
+Rewriting: log(y1+1/y0+1) = β2
+
+Exponentiating both sides: y1+1 / y0+1 = e^β2
+
+The spending for participants is on average e^β2 greater than non-participants. (=27.63%)
 
 ## (e). Why is the magnitude of the tx variable so different in Model 2 (0.050) than in Model 1 (0.244)?
 In model 2, we add on the β3 log(wc + 1) term. In this data set, wc is the number of words that each participant wrote. The relationship between wc and tx is that if wc is greater than 0, tx is 1, whereas when wc is 0, tx is 0. So, if one of wc or tx is 0 for a given observation, then they both will be 0. However, wc can be much greater than tx. If a participant writes a long entry, then wc will be large, whereas tx will still be 1. Therefore, in the model, the wc term will be more significant than the tx value because wc has a much higher maximum than tx, but has the same minimum and will be this minimum value at the same time. So, including the wc variable in the model makes the tx value much less significant in the future predicted spending. 
