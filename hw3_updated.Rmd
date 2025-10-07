@@ -33,18 +33,27 @@ summary(fit1)
 plot(fit1, which=1)
 ```
 
+The residual plot shows a curved pattern to the data, deviating from the "snowstorm" that we expect. This U-shaped trend suggests that the relationship between mpg and at least one predictor is not perfectly linear.
+
 ```{r}
 plot(fit1, which=2)
 ```
+
+The Q–Q plot indicates that most standardized residuals follow the 45-degree line reasonably well, but the right tail has several large positive residuals, This shows that the normality assumption of the errors is not fully met and that a few high-mpg cars are under-predicted by the model.
 
 ```{r}
 plot(fit1, which=3)
 ```
 
+The residual spread increases slightly as fitted values rise, meaning the variance of the errors is not constant. When this assumption fails, OLS estimates remain unbiased but are no longer BLUE.
+
 ```{r}
 plot(fit1, which=5)
 ```
-The assumptions of the linear model that are violated are that the residuals plot shows a pattern to the data, deviating from the "snowstorm" that we expect. The residuals follow a slight U pattern. The Q-Q plot also shows the data deviating from the line towards the ends which is not indicative of a good fit. 
+
+The Residuals vs Leverage plot shows that most points have low leverage.
+
+**Conclusion:** Overall, several assumptions of the linear model are violated. From the diagnostic plots, we can tell that the function is not linear from the residual pattern, error varience is not constant because Scale–Location plot indicates heteroscedasticity, and we can also observe mild non-normality from the Q-Q plot. 
 
 ## (c). Regress log(mpg) on origin, log(weight), year and year squared. Examine the diagnostic plots and the summary. Comment on whether the model assumptions are roughly satisfied
 
@@ -57,29 +66,45 @@ summary(fit2)
 plot(fit2, which=1)
 ```
 
+The residuals are now more randomly scattered around zero, and the curved pattern observed in the previous part has largely disappeared. It demonstrates a "snowstorm" and there is no pattern to the residuals. This suggests that the linear function assumption is better satisfied.
+
 ```{r}
 plot(fit2, which=2)
 ```
+
+The Q–Q plot shows that the residuals mostly follow the 45° line, with only slight deviations at the tails. Therefore, the errors normal assumption is reasonably met.
 
 ```{r}
 plot(fit2, which=3)
 ```
 
+The red line is nearly horizontal and the spread of points is roughly uniform, which demonstrates that the variance of residuals is fairly constant across fitted values. 
+
 ```{r}
 plot(fit2, which=5)
 ```
-The residuals plot for this fit is much more indicative of a better fit because it demonstrates a "snowstorm" and there is no pattern to the residuals. The Q-Q plot still shows some deviation from the line but it roughly satisfies this condition. 
+
+The Residuals vs Leverage plot shows that most points have low leverage.
+
+**Conclusion:** Overall, the diagnostic plots suggest that the main OLS assumptions are now well satisfied. 
 
 ## d) Use the results from the previous part to describe the effect of year on log(mpg), i.e., is it U-shaped, inverted-U shaped, or linear? If it is nonlinear, where is the minimum or maximum. Submit a graph showing the effect. For you to think about but not turn in: why would year have this effect?
 
-```{r}
-b1 = coef(fit2)["year"]
-b2 = coef(fit2)["I(year^2)"]
+\[ \log(mpg) = \beta_0 + \beta_1 \log(weight) + \beta_2 year + \beta_3 year^2 + e\]
 
--b1 / (2 * b2)
+```{r}
+b3 = coef(fit2)["I(year^2)"]
+b3
 ```
 
-Since b2>0, it is U-shaped as the parabola opens upward. By taking the derivative and setting it to 0, we find the minimum at around year = 1967.
+Since b3>0, it is U-shaped as the parabola opens upward. 
+
+```{r}
+b2 = coef(fit2)["year"]
+-b2 / (2 * b3)
+```
+
+By taking the derivative with respect to year and setting it to 0, we find the minimum at around year = 1967.
 
 ```{r}
 library(ggplot2)
@@ -107,7 +132,7 @@ The coefficient tells us that on average as the log of the weight increases, the
 
 ```{r}
 fit3 <- lm(mpg ~ year + I(year^2), data = auto)
-summary(fit3)
+summary(fit3)$coef
 ```
 
 ## (c). What is the correlation between year and year squared?
@@ -165,16 +190,18 @@ beta2 <- gamma2
 rbind("estimates from part (b)" = coef(fit3),
       "expressions in (a)" = c(beta0, beta1, beta2))
 ```
+The two rows match, which confirms the equivalence between centered and uncentered regressions.
 
 # Question 6
 
-## (a). Estimate Model 1 and report the output: \[\log(y + 1) = \beta_0 + \beta_1 \log(x + 1)\]
+## (a). Estimate Model 1 and report the output: \[\log(y + 1) = \beta_0 + \beta_1 \log(x + 1) + \beta_2 tx + e\]
 ```{r}
+library(readr)
 part <- read_csv("part.csv")
 fit6 <- lm(log(part$y + 1) ~ log(part$x + 1) + part$tx)
 summary(fit6)
 ```
-## (b). Estimate Model 2: \[ \log(y + 1) = \beta_0 + \beta_1 \log(x + 1) + \beta_2 \, tx + e\]
+## (b). Estimate Model 2: \[ \log(y + 1) = \beta_0 + \beta_1 \log(x + 1) + \beta_2 tx + \beta_3 \log(wc + 1) + e\]
 ```{r}
 fit7 <- lm(log(part$y + 1) ~ log(part$x + 1) + part$tx + log(part$wc + 1))
 summary(fit7)
@@ -184,36 +211,52 @@ summary(fit7)
 Null Hypothesis: tx = 0
 Alt Hypothesis: tx != 0 
 
-From the fit results, we see tx's p value is 2e-16. This is smaller than 0.05. Therefore we reject the null hypothesis, and therefore do find evidence that participation has a significant effect on future spending. 
+From the fit results, we see tx's p-value is <2e-16. This is smaller than 0.05. Therefore we reject the null hypothesis at the 5% significant level, and therefore do find evidence that participation has a significant effect on future spending. 
+
+The estimate of \(\beta_2\) is 0.24438, which means that, holding log(x + 1) constant, participation increases the expected log of future spending by 0.24438. Because the dependent variable is in logs, we can approximate the change:
+
 ```{r}
 exp(.24438)-1
 ```
 
+Thus, participation increases expected spending by about 27.68% on average relative to non-participants.
+
 ## (d). Using Model 1, post-period spending is how many times greater for those who participate than for those who do not? Note that this question asks about spending and not log spending. Another way to ask this question is: suppose there are two people with identical pre-period spending, but one participates and the other does not. More precisely, if \(y_1\) is the post-contest spending of a participant and \(y_0\) is the post-contest spending of a non-participant, how many times greater is \((y_1 + 1)\) than \((y_0 + 1)\)?
 model 1:  
-log(y + 1) = β0 + β1 log(x + 1) + β2tx + e
+\[
+\log(y + 1) = \beta_0 + \beta_1 \log(x + 1) + \beta_2 tx + e
+\]
 
 For a participant, where tx = 1, we get:
-log(y1 + 1) = β0 + β1 log(x + 1) + β2 + e
+\[
+\log(y_1 + 1) = \beta_0 + \beta_1 \log(x + 1) + \beta_2 + e
+\]
 
 For a non-participant, where tx = 0, we get:
-log(y0 + 1) = β0 + β1 log(x + 1) + e
+\[
+\log(y_0 + 1) = \beta_0 + \beta_1 \log(x + 1) + e
+\]
 
 
-The only difference between the two equations is the β2 term.   
+The only difference between the two equations is the \(\beta_2\) term.   
 
 If we subtract the two equations, we get:
 
-log(y1+1) - log(y0+1) = β0 + β1 log(x + 1) + β2 + e - (β0 + β1 log(x + 1) + e) = β2
+\[
+\log(y_1 + 1) - \log(y_0 + 1) 
+= \beta_0 + \beta_1 \log(x + 1) + \beta_2 + e 
+- (\beta_0 + \beta_1 \log(x + 1) + e) 
+= \beta_2
+\]
 
-Rewriting: log(y1+1/y0+1) = β2
+Rewriting: \[\log\left(\frac{y_1 + 1}{y_0 + 1}\right) = \beta_2\]
 
-Exponentiating both sides: y1+1 / y0+1 = e^β2
+Exponentiating both sides: \[\frac{y_1 + 1}{y_0 + 1} = e^{\beta_2}\]
 
-The spending for participants is on average e^β2 greater than non-participants. (=27.63%)
+The spending for participants is on average \( e^{\beta_2} \) greater than non-participants. (=27.63%)
 
 ## (e). Why is the magnitude of the tx variable so different in Model 2 (0.050) than in Model 1 (0.244)?
-In model 2, we add on the β3 log(wc + 1) term. In this data set, wc is the number of words that each participant wrote. The relationship between wc and tx is that if wc is greater than 0, tx is 1, whereas when wc is 0, tx is 0. So, if one of wc or tx is 0 for a given observation, then they both will be 0. However, wc can be much greater than tx. If a participant writes a long entry, then wc will be large, whereas tx will still be 1. Therefore, in the model, the wc term will be more significant than the tx value because wc has a much higher maximum than tx, but has the same minimum and will be this minimum value at the same time. So, including the wc variable in the model makes the tx value much less significant in the future predicted spending. 
+In model 2, we add on the \(\beta_3\) log(wc + 1) term. In this data set, wc is the number of words that each participant wrote. The relationship between wc and tx is that if wc is greater than 0, tx is 1, whereas when wc is 0, tx is 0. So, if one of wc or tx is 0 for a given observation, then they both will be 0. However, wc can be much greater than tx. If a participant writes a long entry, then wc will be large, whereas tx will still be 1. Therefore, in the model, the wc term will be more significant than the tx value because wc has a much higher maximum than tx, but has the same minimum and will be this minimum value at the same time. So, including the wc variable in the model makes the tx value much less significant in the future predicted spending. 
 
 ## (f). Now consider Model 2. How do the results from Model 2 change your conclusions about how participation affects future spending. I am looking for you to summarize the key learnings from Model 2 succinctly.
 In model 2, we see the p-value for tx is 0.510. This is a very high value, and if we set up the same hypothesis test from part (d), we would fail to reject the null hypothesis, meaning that we fail to conclude that participation has significant effect on future spending. However, for the log(wc + 1) term, we see a p-value of 0.00637. This value is less than 0.5, meaning in a hypothesis test we would reject the null hypothesis, and conclude that wc has a significant effect on future spending. Therefore a high word count would suggest a higher future spending on average. 
