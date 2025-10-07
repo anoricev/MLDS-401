@@ -44,6 +44,7 @@ plot(fit1, which=3)
 ```{r}
 plot(fit1, which=5)
 ```
+The assumptions of the linear model that are violated are that the residuals plot shows a pattern to the data, deviating from the "snowstorm" that we expect. The residuals follow a slight U pattern. The Q-Q plot also shows the data deviating from the line towards the ends which is not indicative of a good fit. 
 
 ## (c). Regress log(mpg) on origin, log(weight), year and year squared. Examine the diagnostic plots and the summary. Comment on whether the model assumptions are roughly satisfied
 
@@ -67,7 +68,7 @@ plot(fit2, which=3)
 ```{r}
 plot(fit2, which=5)
 ```
-
+The residuals plot for this fit is much more indicative of a better fit because it demonstrates a "snowstorm" and there is no pattern to the residuals. The Q-Q plot still shows some deviation from the line but it roughly satisfies this condition. 
 
 ## d) Use the results from the previous part to describe the effect of year on log(mpg), i.e., is it U-shaped, inverted-U shaped, or linear? If it is nonlinear, where is the minimum or maximum. Submit a graph showing the effect. For you to think about but not turn in: why would year have this effect?
 
@@ -78,7 +79,7 @@ b2 = coef(fit2)["I(year^2)"]
 -b1 / (2 * b2)
 ```
 
-Since b2>0, it is U-shaped as the parabola opens upward. By taking the derivative and setting it to 0, we find the minimum at around year = 67.
+Since b2>0, it is U-shaped as the parabola opens upward. By taking the derivative and setting it to 0, we find the minimum at around year = 1967.
 
 ```{r}
 library(ggplot2)
@@ -98,7 +99,7 @@ ggplot(auto, aes(x = weight, y = mpg)) +
   geom_smooth(method = "lm", formula = y ~ x) + 
   labs(title = "The effect of weight on mpg")
 ```
-
+The coefficient tells us that on average as the log of the weight increases, the log of miles per gallon decreases. This is also the case for the unlogged mpg and unlogged weight. As the weight increases, on average the miles per gallon will decrease.
 
 # Question 5
 
@@ -168,13 +169,21 @@ rbind("estimates from part (b)" = coef(fit3),
 # Question 6
 
 ## (a). Estimate Model 1 and report the output: \[\log(y + 1) = \beta_0 + \beta_1 \log(x + 1)\]
-
-
+```{r}
+part <- read_csv("part.csv")
+fit6 <- lm(log(part$y + 1) ~ log(part$x + 1) + part$tx)
+summary(fit6)
+```
 ## (b). Estimate Model 2: \[ \log(y + 1) = \beta_0 + \beta_1 \log(x + 1) + \beta_2 \, tx + e\]
-
+```{r}
+fit7 <- lm(log(part$y + 1) ~ log(part$x + 1) + part$tx + log(part$wc + 1))
+summary(fit7)
+```
 
 ## (c). Based on Model 1, does participation have a significant effect on future spending? Test the appropriate hypothesis at the 5% level and interpret the estimate of \(\beta_2\).
-
+```{r}
+exp(.24438)-1
+```
 
 ## (d). Using Model 1, post-period spending is how many times greater for those who participate than for those who do not? Note that this question asks about spending and not log spending. Another way to ask this question is: suppose there are two people with identical pre-period spending, but one participates and the other does not. More precisely, if \(y_1\) is the post-contest spending of a participant and \(y_0\) is the post-contest spending of a non-participant, how many times greater is \((y_1 + 1)\) than \((y_0 + 1)\)?
 
