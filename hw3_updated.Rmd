@@ -181,6 +181,10 @@ summary(fit7)
 ```
 
 ## (c). Based on Model 1, does participation have a significant effect on future spending? Test the appropriate hypothesis at the 5% level and interpret the estimate of \(\beta_2\).
+Null Hypothesis: tx = 0
+Alt Hypothesis: tx != 0 
+
+From the fit results, we see tx's p value is 2e-16. This is smaller than 0.05. Therefore we reject the null hypothesis, and therefore do find evidence that participation has a significant effect on future spending. 
 ```{r}
 exp(.24438)-1
 ```
