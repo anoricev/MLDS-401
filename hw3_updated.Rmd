@@ -189,13 +189,13 @@ exp(.24438)-1
 
 
 ## (e). Why is the magnitude of the tx variable so different in Model 2 (0.050) than in Model 1 (0.244)?
-
+In model 2, we add on the β3 log(wc + 1) term. In this data set, wc is the number of words that each participant wrote. The relationship between wc and tx is that if wc is greater than 0, tx is 1, whereas when wc is 0, tx is 0. So, if one of wc or tx is 0 for a given observation, then they both will be 0. However, wc can be much greater than tx. If a participant writes a long entry, then wc will be large, whereas tx will still be 1. Therefore, in the model, the wc term will be more significant than the tx value because wc has a much higher maximum than tx, but has the same minimum and will be this minimum value at the same time. So, including the wc variable in the model makes the tx value much less significant in the future predicted spending. 
 
 ## (f). Now consider Model 2. How do the results from Model 2 change your conclusions about how participation affects future spending. I am looking for you to summarize the key learnings from Model 2 succinctly.
-
+In model 2, we see the p-value for tx is 0.510. This is a very high value, and if we set up the same hypothesis test from part (d), we would fail to reject the null hypothesis, meaning that we fail to conclude that participation has significant effect on future spending. However, for the log(wc + 1) term, we see a p-value of 0.00637. This value is less than 0.5, meaning in a hypothesis test we would reject the null hypothesis, and conclude that wc has a significant effect on future spending. Therefore a high word count would suggest a higher future spending on average. 
 
 ## (g). Why do you think that the word count might affect future spending?
+If a participant took the extra time to write a long response for the social media contest, that demonstrates that they care more about the company. If they had a lot to write, that suggests that they are familiar with the company, and if they are already familiar with the company, it also suggests that they are more likely that they are already repeat shoppers and are more likely to come back to shop again. If a participant just wrote a single word, for example, it might demonstrate that they do not care about the company but were rather only participating in order to get the reward. These people are less likely to spend money at the company in the future. 
 
-
-## (h). hat do the results of this analysis suggest the company should do in the future when designing social media contests?
-
+## (h). What do the results of this analysis suggest the company should do in the future when designing social media contests?
+They should only reward those who write a longer response. This could prevent them from paying people who are only there to collect the reward, and instead reward those who are more likely to have shopped there already and shop there again. 
