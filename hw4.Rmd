@@ -1,0 +1,299 @@
+---
+title: "Homework 4"
+output: pdf_document
+date: "2025-10-10"
+authurs: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+
+```{r}
+auto <- read.table("~/Desktop/401/auto.txt", head=T)
+```
+
+## (a). Now regress log(mpg) on cylinders, log(displacement), log(weight), and year. Which variables are significant and what fraction of variance is explained by the predictors?
+
+```{r}
+fit1 <- lm(log(mpg) ~ cylinders + log(displacement) + log(weight) + year, data=auto)
+summary(fit1)
+```
+
+log(weight) and year are statistically significant. Since R-squared = 0.8842, 88.42% of variance is explained by the predictors.
+
+## (b). Examine the residual plots. Comment.
+
+```{r}
+plot(fit1)
+```
+
+Overall, the residual diagnostic plots suggest that the model fits reasonably well. In the Residuals vs Fitted plot, the points are randomly scattered around zero without a clear pattern, indicating that the model’s form is appropriate and the residuals have constant variance. The Q-Q plot shows that most residuals follow the diagonal line closely, though a few points at both tails deviate slightly, suggesting minor departures from normality. The Scale-Location plot displays an even spread of the square root of standardized residuals across fitted values, implying homoscedasticity. In the Residuals vs Leverage plot, all points have reasonable leverage. 
+
+## (c). Compute the variance inflation factors. What do they tell you?
+
+```{r}
+library(car) 
+vif(fit1)
+```
+
+cylinders and log(weight) have substantial multicolliearity - highly correlated with others. 
+log(displacement) has severe multicolliearity - almost perfectly explained by other predictors. 
+year has almost no multicolliearity - not correlated with others.
+
+## (d). Drop weight from the model, which you should have have found to be the most important variable in the model. What happens to the parameter estimates and $R^2$?
+
+```{r}
+fit2 <- lm(log(mpg) ~ cylinders + log(displacement) + year, data=auto)
+summary(fit2)
+```
+
+Log(displacement) and year are the most statistically significant predictors in the model. Among the variables related to vehicle size, log(displacement) has the strongest effect. After dropping weight from the model, the coefficient of log(displacement) becomes even more significant, while the overall R-squared decreases.
+
+# Question 2
+
+## (a). Is this a pipe, fork or collider?
+
+w influences both x and y. Since we want to study the effect of x on y, this forms a fork structure and we should control for w.
+
+## (b). Generate a correlation matrix and basic descriptive statistics (min, max, mean, sd).
+
+```{r}
+set.seed(730)
+
+n = 500
+w = runif(n, max=5)
+x = w + rnorm(n)
+y = 4 + 2 * x - 3 * w + rnorm(n)
+
+data = data.frame(y, x, w)
+cor(data)
+```
+
+```{r}
+descriptive_stat = rbind(sapply(data, min), sapply(data, max), 
+                        sapply(data, mean), sapply(data, sd))
+rownames(descriptive_stat) <- c('min', 'max', 'mean', 'sd')
+descriptive_stat
+```
+
+## (c). Regress y on x. Is the coefficient of x significant at the .05 level? Does a 95% CI cover the true slope for x, namely 2?
+
+```{r}
+fit3 <- lm(y ~ x, data = data)
+confint(fit3)
+```
+
+Notice at the .05 level, x has a coefficient from -0.127 to 0.141, which includes 0, so the coefficient is not significant. 
+A 95% confidence interval does not include the true slope 2.
+
+## (d). Now regress y on both x and w. Is the coefficient of x significant at the .05 level? Does a 95% CI cover the true slope for x, namely 2?
+
+```{r}
+fit4 <- lm(y ~ x + w, data = data)
+confint(fit4)
+```
+
+Significant since does not contain 0. It also includes true slope.
+
+## (e). What are the values of VIF from this second regression?
+
+```{r}
+vif(fit4)
+```
+
+# Question 3.
+
+## (a). Is this a pipe, fork or collider?
+
+x affects y, and both x and y affect w. Since we want to study the effect of x on y, this forms a collider structure and we should not control for w.
+
+## (b).
+
+```{r}
+set.seed(730)
+
+n = 500
+x = runif(n, max=5)
+y = x + rnorm(n)
+w = 4 + 2 * x + 3 * y + rnorm(n)
+
+data2 = data.frame(y, x, w)
+cor(data2)
+```
+
+```{r}
+descriptive_stat2 = rbind(sapply(data2, min), sapply(data2, max), 
+                        sapply(data2, mean), sapply(data2, sd))
+rownames(descriptive_stat2) <- c('min', 'max', 'mean', 'sd')
+descriptive_stat2
+```
+
+## (c). Regress y on x. Is the coefficient of x significant at the .05 level? Does a 95% CI cover the true slope for x, namely 1?
+
+```{r}
+fit5 <- lm(y ~ x)
+confint(fit5)
+```
+
+Significant because not including 0. Does include the true value 1
+
+## (d). Now regress y on both x and w. Is the coefficient of x significant at the .05 level? Does a 95% CI cover the true slope for x, namely 1?
+
+```{r}
+fit6 <- lm(y ~ x + w, data = data2)
+confint(fit6)
+```
+
+Significant because x has a coefficient from -0.578 to -0.484. A 95% confidence interval does not include the true slope 1.
+
+## (e). What are the values of VIF from this second regression?
+
+```{r}
+vif(fit6)
+```
+
+## (f). Compare the values of $R^2$ (or $S_e$) between the two models. Which model is better according or $R^2$ (or $S_e$). Is this the right model?
+
+```{r}
+summary(fit5)
+summary(fit6)
+```
+
+The model y \~ x + w has a higher R-squared, but it's not the right model.
+
+
+# Question 4
+
+## (a). Is this a pipe, fork or collider?
+
+x affects w, and w affects y. Since we want to study the effect of x on y, this forms a pipe structure and we should not control for w.
+
+## (b). Generate a correlation matrix and basic descriptive statistics (min, max, mean, sd)
+
+```{r}
+set.seed(730)
+
+n = 500
+x = runif(n, max=5)
+w = x + rnorm(n)
+y = 2 * w + rnorm(n)
+
+data3 = data.frame(y, x, w)
+cor(data3)
+```
+
+```{r}
+descriptive_stat3 = rbind(sapply(data3, min), sapply(data3, max), 
+                        sapply(data3, mean), sapply(data3, sd))
+rownames(descriptive_stat3) <- c('min', 'max', 'mean', 'sd')
+descriptive_stat3
+```
+
+## (c). Regress y on x. Is the coefficient of x significant at the .05 level?
+
+```{r}
+fit7 <- lm(y ~ x, data = data3)
+confint(fit7)
+```
+
+significant
+
+## (d) Now regress y on both x and w. Is the coefficient of x significant at the .05 level?
+
+```{r}
+fit8 <- lm(y ~ x + w, data = data3)
+confint(fit8)
+```
+
+not significant
+
+## (e) Which model has a better $R^2$? (You could also compare adjusted $R^2$, although we have not defined it yet.
+
+```{r}
+summary(fit7)
+summary(fit8)
+```
+
+The model y \~ x + w has a higher R-squared, but it's not the right model.
+
+# Question 5
+
+## (a).
+
+```{r}
+set.seed(1)
+x1 = runif(100) # part a
+x2 = 0.5*x1 + rnorm(100)/10
+y = 2 + 2*x1 + .3*x2 + rnorm(100)
+```
+
+The linear model is $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon$, where $\beta_0 = 2$, $\beta_1 = 2$, $\beta_2 = 0.3$, and $\epsilon$ \~ $N(0,1)$. The standard deviation of errors is 1.
+
+## (b). What is the correlation between x1 and x2?
+
+```{r}
+cor(x1, x2)
+```
+
+x1 and x2 are strongly correlated with correlation 0.835.
+
+## (c). Using this data, regress y on x1 and x2. Describe the results. What are the parameter estimates and how do they relate to the true parameters? Which coefficients are significantly different from 0? Are the true parameters “covered” by 95% CIs?
+
+```{r}
+fit9 <- lm(y ~ x1 + x2)
+summary(fit9)
+```
+
+Estimated formula is $y = 2.1305 + 1.4396 * x_1 + 1.0097 x_2 + \epsilon$, while the true model is $y = 2 + 2*x_1 + 0.3*x_2 + \epsilon$. Notice that the intercept is close to the true value, highly significant and is clearly different from 0. The coefficient for x1 is significant at the 5% level, while the coefficient for x2 is much larger than the true value 0.3 and not significantly from 0. This discrepancy happens because x1 and x2 are highly correlated, hence multicollinearity inflates the standard error.
+
+```{r}
+confint(fit9)
+```
+
+All true parameters are covered by their 95% CIs.
+
+## (d). Regress y on x1 alone. Is $\beta_1$ significantly different from 0? Is the true $\beta_1$ covered by by a 95% CI?
+
+```{r}
+fit10 <- lm(y ~ x1)
+summary(fit10)
+```
+
+Notice that $\beta_1$ has p-value 2.66e-06, which is significantly different from 0.
+
+```{r}
+confint(fit10)
+```
+
+The true value of $\beta_1 = 2$ is covered by a 95% CI
+
+## (e). Regress y on x2 alone. Is $\beta_2$ significantly different from 0? Is the true $\beta_2$ covered by a 95% CI? Are the true parameters “covered” by the 95% confidence intervals?
+
+```{r}
+fit11 <- lm(y ~ x2)
+summary(fit11)
+```
+
+Notice that $\beta_2$ has p-value 1.37e-05, which is significantly different from 0.
+
+```{r}
+confint(fit11)
+```
+
+The true $\beta_2 = 0.3$ is not covered by the 95% CI because this model omits $x_1$, so the estimate is biased upward.
+
+## (f). Do the results in (c)–(e) contradict each other? Explain
+
+No, the results do not contradict each other as they illustrate the effects of multicollinearity and omitted variable bias. In the regression model of part (c), both $x_1$ and $x_2$ are included together, and since they are strongly correlated, the model has difficulty separating their individual contributions to y. This makes $x_1$ only statistically significant at 5% level and $x_2$ appear statistically insignificant. In contrast, when each predictor is used alone in parts (d) and (e), the single-variable models capture not only the variable’s own effect but also the variation shared with the omitted predictor. As a result, both $x_1$ and $x_2$ appear highly significant when entered separately. Specifically, in part (e), the 95% confidence interval does not include the true value 0.3 because the model is misspecified and does not take $x_1$ into consideration. Thus, the results do not contradict one another.
+
+# Question 8
+
+I expect that the type and amount of crime around a Divvy station will affect bike demand differently depending on how threatening and visible each crime appears. Crimes that signal personal danger, such as `battery`, `assault`, `robbery`, and `homicide`, are more likely to reduce demand since riders may perceive the station area as unsafe and avoid it, especially during evening hours. `narcotics` reflects disorder in the neighborhood, so it may reduce demand. In contrast, property-related crimes such as `burglary` or `theft` may have a weaker relationship with bike rentals, as these offenses often occur when individuals are not present and may not directly threaten riders. `Deceptive practices` are less visibly violent so may not immediately reduce demand. `Criminal trespassing` might correlate weakly with demand.
+
+Beyond crime, higher population density, station capacity, and transit connectivity of bus and train stops should raise demand. Higher per capita income would probably decrease demands as residents rely more on private vehicles.
+
+As the data come from the Chicago Police Department rather than from surveys of residents' perceptions, the analysis captures actual crime
+incidence instead of perceived risk. This matters because people's behavior often responds more to perceived safety than to official statistics.
