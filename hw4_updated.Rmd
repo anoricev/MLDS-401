@@ -52,6 +52,12 @@ summary(fit2)
 
 Log(displacement) and year are the most statistically significant predictors in the model. Among the variables related to vehicle size, log(displacement) has the strongest effect. After dropping weight from the model, the coefficient of log(displacement) becomes even more significant, while the overall R-squared decreases.
 
+## (e). For class discussion: Draw a DAG for weight, horsepower, displacement, cylinders and mpg. Suppose your main interest is understanding how cylindars affect MPG. Should you include displacement, weight and/or horsepower as controls? You could ask ChatGPT to comment on the causal relationship betwewen the variables. Ask why cylinders, weight and displacement are so correlated? You may not be an expert of automotive design, but as a data scientist you need to be able to parachute into a new situation and do something reasonable. ChatGPT is really helpful in understanding a new domain (since it has read everything). Think carefully about cylinders and weight. Note that having more cylinders means a bigger engine that weighs more, but bigger (heavier) cars (or sports cars) require more powerful (more cylinders/displacement/horsepower) engines.
+
+cylinders ---> displacement ---> horsepower ---> mpg
+     \                                            ^
+      \________> weight __________________________|
+
 # Question 2
 
 ## (a). Is this a pipe, fork or collider?
