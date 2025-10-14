@@ -295,5 +295,4 @@ I expect that the type and amount of crime around a Divvy station will affect bi
 
 Beyond crime, higher population density, station capacity, and transit connectivity of bus and train stops should raise demand. Higher per capita income would probably decrease demands as residents rely more on private vehicles.
 
-As the data come from the Chicago Police Department rather than from surveys of residents' perceptions, the analysis captures actual crime
-incidence instead of perceived risk. This matters because people's behavior often responds more to perceived safety than to official statistics.
+As the data come from the Chicago Police Department rather than from surveys of residents' perceptions, the analysis captures actual crime incidence instead of perceived risk. This matters because people's behavior often responds more to perceived safety than to official statistics.
