@@ -2,7 +2,7 @@
 title: "Homework 4"
 output: pdf_document
 date: "2025-10-10"
-authurs: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
+author: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
 ---
 
 ```{r setup, include=FALSE}
@@ -54,9 +54,13 @@ Log(displacement) and year are the most statistically significant predictors in 
 
 ## (e). For class discussion: Draw a DAG for weight, horsepower, displacement, cylinders and mpg. Suppose your main interest is understanding how cylindars affect MPG. Should you include displacement, weight and/or horsepower as controls? You could ask ChatGPT to comment on the causal relationship betwewen the variables. Ask why cylinders, weight and displacement are so correlated? You may not be an expert of automotive design, but as a data scientist you need to be able to parachute into a new situation and do something reasonable. ChatGPT is really helpful in understanding a new domain (since it has read everything). Think carefully about cylinders and weight. Note that having more cylinders means a bigger engine that weighs more, but bigger (heavier) cars (or sports cars) require more powerful (more cylinders/displacement/horsepower) engines.
 
-cylinders ---> displacement ---> horsepower ---> mpg
-     \                                            ^
-      \________> weight __________________________|
+DAG:
+
+Cylinders -> Displacement -> Horsepower -> MPG
+
+Cylinders -> Weight -> MPG
+
+Explanation: Cylinders and displacement move together becuase adding cylinders usually increases total swept volume of the engine. Cylinders and weight co move since bigger engines need stronger frames, drivetrains, and cooling, and they are often installed in larger cars aimed at higher performance.
 
 # Question 2
 
