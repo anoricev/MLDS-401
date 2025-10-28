@@ -71,6 +71,7 @@ normalized_index <- function(df, cols) {
 bike$cbd_index <- normalized_index(bike, cbd_components)
 bike$criminal_index <- normalized_index(bike, criminal_components)
 ```
+
 **Central Business District Index**
 
 The cbd_index measures how strongly each station area resembles a central business district. The variables chosen for the CBD grouping were bus stations, train stations, retail food locations, business licenses, bike routes, and capacity. We expect that due to the nature of these variables there will be a positive relationship between CBD overall and trips on average.
@@ -79,16 +80,9 @@ The cbd_index measures how strongly each station area resembles a central busine
 
 The violent_index summarizes crimes that are most likely to deter Divvy ridership through safety or environmental concerns. For the crime variables, assault, battery, burglary, arson, homicide, intimidation, kidnapping, narcotics, robbery, criminal damage, theft, and interference with public offers were chosen. Initially, we tried to group the crimes by type of crime - i.e. personal harm vs. property damage, but the resulting model found that personal harm crimes were insignificant, which we did not deem to be realistic. We then tried grouping by crime perception - i.e. crimes that make the news like homicide and assault versus those that don’t such as intimidation. This also did not yield significant results, so we decided to group the crimes together and choose the specific crimes we thought would be a factor in affecting trips. 
 
+**Normalization**
+
 To simplify the model and capture broader urban patterns, the crime and CBD variables were combined into composite indices. This helps summarize conceptually similar predictors that likely influence Divvy demand in the same direction. Before averaging, all variables were standardized using z-scored so that differences in scale would not distort the combined index. The index value is then the average of its standardized component scores.
-
-We also included other variables such as park area, population per square mile, minority, and education.
-
-**Results**
-
-The result of the model yields relationships between the predictor variables and trips. Park area, minority, and crimes have a negative relationship with trips. Population per square mile, education, and CBD have a positive relationship with trips. Of all of the variables, only the coefficient for population per square mile is not significant at the 5% level. 
-
-An interesting result that was generated from the model is that higher minority decreases the number of trips on average. This could highlight the societal links between race and socioeconomic status implicitly because one would not expect minority to directly affect the number of trips. 
-
 
 
 # Correlation matrix & scatterplot
@@ -107,11 +101,21 @@ fit = lm(trips ~ PARK_AREA_ACRES + POPULATION_SQ_MILE + MINORITY + EDU + cbd_ind
 summary(fit)
 ```
 
+Since PER_CAPITA_INCOME shows a weak correlation with trip counts, it was excluded from the final model. The result of the model yields relationships between the predictor variables and trips. Park area, minority, and crimes have a negative relationship with trips. Population per square mile, education, and CBD have a positive relationship with trips. Of all of the variables, only the coefficient for population per square mile is not significant at the 5% level but at 10% level. The model achieves an R-squared of 0.7, suggesting that approximately 70 percent of the variation in trip counts can be explained by the selected predictors.
+
+An interesting result that was generated from the model is that higher minority decreases the number of trips on average. This could highlight the societal links between race and socioeconomic status implicitly because one would not expect minority to directly affect the number of trips.
+
 ```{r}
-plot(fit)
+plot(fit, which=1)
 ```
+
+The residual plot shows that the residuals are roughly centered around zero with no clear pattern, suggesting that the model's linearity assumption is reasonable. The spread of residuals appears fairly constant across fitted values, showing no major signs of heteroscedasticity.
+
 
 ```{r}
 vif(fit)
 ```
 
+Notice that the VIFs for all predictors are quite low (close to 1), indicating that multicollinearity is not a concern and that the predictors are largely independent of one another.
+
+# Summary
