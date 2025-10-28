@@ -1,0 +1,109 @@
+---
+title: "Homework 6"
+output: pdf_document
+date: "2025-10-28"
+author: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load data
+
+```{r, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(psych)
+library(car)
+
+bike <- read_csv("~/Desktop/401/hw/hw5/bike.csv")
+colnames(bike)
+```
+
+# Correlation between crimes and trip counts
+
+```{r}
+crime_start <- match("ARSON", names(bike))
+crime_end <- match("WEAPONS_VIOLATION", names(bike))
+crime_cols <- names(bike)[crime_start:crime_end] 
+crime_cor <- sapply(crime_cols, function(col) {
+  cor(bike[[col]], bike$trips)
+})
+
+round(sort(crime_cor), 3)
+```
+
+The correlation analysis shows that some crime variables are negatively correlated with Divvy trip counts. Crimes like homicide, weapons violation, and arson show negative correlations, suggesting that serious or violent offenses may discourage biking activity due to safety concerns. Conversely, crimes such as theft, liquor law violation, and prostitution display strong positive correlations, most possibly because they are concentrated in busy downtown areas where Divvy usage is naturally higher. That is, their apparent positive relationship with bike demand does not reflect that these crimes encourage riding, but rather that both occur in densely populated, commercially active neighborhoods.
+
+# Composite variables
+
+```{r}
+cbd_components <- c(
+  "CTA_BUS_STATIONS", 
+  "CTA_TRAIN_STATIONS", 
+  "BIKE_ROUTES", 
+  "CAPACITY",
+  "Limited_Business_License", 
+  "Retail_Food_Establishment"
+)
+
+criminal_components <- c(
+  "ARSON",
+  "WEAPONS_VIOLATION",
+  "HOMICIDE",
+  "MOTOR_VEHICLE_THEFT",
+  "OFFENSE_INVOLVING_CHILDREN",
+  "GAMBLING",
+  "NARCOTICS",
+  "HUMAN_TRAFFICKING",
+  "BURGLARY",
+  "ASSAULT",
+  "BATTERY"
+)
+
+normalized_index <- function(df, cols) {
+  keep <- intersect(cols, names(df))
+  m <- scale(df[keep]) 
+  as.numeric(rowMeans(m))
+}
+
+bike$cbd_index <- normalized_index(bike, cbd_components)
+bike$criminal_index <- normalized_index(bike, criminal_components)
+```
+
+To simplify the model and capture broader urban patterns, several related variables were combined into composite indices. This helps summarize conceptually similar predictors that likely influence Divvy demand in the same direction. Before averaging, all variables were standardized using z-scored so that differences in scale would not distort the combined index. The index value is then the average of its standardized component scores.
+
+**Central Business District Index**
+
+The cbd_index measures how strongly each station area resembles the central business district...
+
+**Criminal Index**
+
+The violent_index summarizes crimes that are most likely to deter Divvy ridership through safety or environmental concerns...
+
+
+# Correlation matrix & scatterplot
+
+```{r}
+vars <- c('trips', 'PARK_AREA_ACRES', 'PER_CAPITA_INCOME', 'POPULATION_SQ_MILE', 
+          'MINORITY', 'EDU', 'cbd_index', 'criminal_index')
+pairs.panels(bike[, vars], stars=T, density=T)
+```
+
+# Fit, residual plot, and VIFs
+
+```{r}
+fit = lm(trips ~ PARK_AREA_ACRES + POPULATION_SQ_MILE + MINORITY + EDU + cbd_index + criminal_index, data=bike)
+
+summary(fit)
+```
+
+```{r}
+plot(fit)
+```
+
+```{r}
+vif(fit)
+```
+
