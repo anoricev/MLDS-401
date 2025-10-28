@@ -71,8 +71,14 @@ normalized_index <- function(df, cols) {
 bike$cbd_index <- normalized_index(bike, cbd_components)
 bike$criminal_index <- normalized_index(bike, criminal_components)
 ```
+The variables chosen for the CBD grouping were bus stations, train stations, retail food locations, business licenses, bike routes, and capacity. We expect that due to the nature of these variables there will be a positive relationship between CBD overall and trips on average.
 
-To simplify the model and capture broader urban patterns, several related variables were combined into composite indices. This helps summarize conceptually similar predictors that likely influence Divvy demand in the same direction. Before averaging, all variables were standardized using z-scored so that differences in scale would not distort the combined index. The index value is then the average of its standardized component scores.
+For the crime variables, assault, battery, burglary, arson, homicide, intimidation, kidnapping, narcotics, robbery, criminal damage, theft, and interference with public offers were chosen. Initially, we tried to group the crimes by type of crime - i.e. personal harm vs. property damage, but the resulting model found that personal harm crimes were insignificant, which we did not deem to be realistic. We then tried grouping by crime perception - i.e. crimes that make the news like homicide and assault versus those that don’t such as intimidation. This also did not yield significant results, so we decided to group the crimes together and choose the specific crimes we thought would be a factor in affecting trips. 
+
+To simplify the model and capture broader urban patterns, the crime and CBD variables were combined into composite indices. This helps summarize conceptually similar predictors that likely influence Divvy demand in the same direction. Before averaging, all variables were standardized using z-scored so that differences in scale would not distort the combined index. The index value is then the average of its standardized component scores.
+
+We also included other variables such as park area, population per square mile, minority, and education.
+
 
 **Central Business District Index**
 
