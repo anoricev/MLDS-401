@@ -71,22 +71,24 @@ normalized_index <- function(df, cols) {
 bike$cbd_index <- normalized_index(bike, cbd_components)
 bike$criminal_index <- normalized_index(bike, criminal_components)
 ```
-The variables chosen for the CBD grouping were bus stations, train stations, retail food locations, business licenses, bike routes, and capacity. We expect that due to the nature of these variables there will be a positive relationship between CBD overall and trips on average.
+**Central Business District Index**
 
-For the crime variables, assault, battery, burglary, arson, homicide, intimidation, kidnapping, narcotics, robbery, criminal damage, theft, and interference with public offers were chosen. Initially, we tried to group the crimes by type of crime - i.e. personal harm vs. property damage, but the resulting model found that personal harm crimes were insignificant, which we did not deem to be realistic. We then tried grouping by crime perception - i.e. crimes that make the news like homicide and assault versus those that don’t such as intimidation. This also did not yield significant results, so we decided to group the crimes together and choose the specific crimes we thought would be a factor in affecting trips. 
+The cbd_index measures how strongly each station area resembles a central business district. The variables chosen for the CBD grouping were bus stations, train stations, retail food locations, business licenses, bike routes, and capacity. We expect that due to the nature of these variables there will be a positive relationship between CBD overall and trips on average.
+
+**Criminal Index**
+
+The violent_index summarizes crimes that are most likely to deter Divvy ridership through safety or environmental concerns. For the crime variables, assault, battery, burglary, arson, homicide, intimidation, kidnapping, narcotics, robbery, criminal damage, theft, and interference with public offers were chosen. Initially, we tried to group the crimes by type of crime - i.e. personal harm vs. property damage, but the resulting model found that personal harm crimes were insignificant, which we did not deem to be realistic. We then tried grouping by crime perception - i.e. crimes that make the news like homicide and assault versus those that don’t such as intimidation. This also did not yield significant results, so we decided to group the crimes together and choose the specific crimes we thought would be a factor in affecting trips. 
 
 To simplify the model and capture broader urban patterns, the crime and CBD variables were combined into composite indices. This helps summarize conceptually similar predictors that likely influence Divvy demand in the same direction. Before averaging, all variables were standardized using z-scored so that differences in scale would not distort the combined index. The index value is then the average of its standardized component scores.
 
 We also included other variables such as park area, population per square mile, minority, and education.
 
+**Results**
 
-**Central Business District Index**
+The result of the model yields relationships between the predictor variables and trips. Park area, minority, and crimes have a negative relationship with trips. Population per square mile, education, and CBD have a positive relationship with trips. Of all of the variables, only the coefficient for population per square mile is not significant at the 5% level. 
 
-The cbd_index measures how strongly each station area resembles the central business district...
+An interesting result that was generated from the model is that higher minority decreases the number of trips on average. This could highlight the societal links between race and socioeconomic status implicitly because one would not expect minority to directly affect the number of trips. 
 
-**Criminal Index**
-
-The violent_index summarizes crimes that are most likely to deter Divvy ridership through safety or environmental concerns...
 
 
 # Correlation matrix & scatterplot
