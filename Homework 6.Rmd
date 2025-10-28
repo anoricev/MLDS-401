@@ -109,15 +109,15 @@ fit = lm(trips ~ PARK_AREA_ACRES + POPULATION_SQ_MILE + MINORITY + EDU + cbd_ind
 summary(fit)
 ```
 
-Since PER_CAPITA_INCOME shows a weak correlation with trip counts, it was excluded from the final model. The result of the model yields relationships between the predictor variables and trips. Park area, minority, and crimes have a negative relationship with trips. Population per square mile, education, and CBD have a positive relationship with trips. Of all of the variables, only the coefficient for population per square mile is not significant at the 5% level but at 10% level. The model achieves an R-squared of 0.7, suggesting that approximately 70 percent of the variation in trip counts can be explained by the selected predictors.
+Since PER_CAPITA_INCOME shows a weak correlation with trip counts, it was excluded from the final model. The result of the model yields relationships between the predictor variables and trips. Park area, minority, and crimes have a negative relationship with trips. Population per square mile, education, and CBD have a positive relationship with trips. Of all of the variables, only the coefficient for population per square mile is not significant at the 5% level but at 10% level. The model achieves an R-squared of 0.7, meaning that approximately 70% of the variation in trip counts can be explained by the selected predictors. This suggests that the predictors of park area, demographics, education, urban centrality, and safety index generally capture key structural drivers of Divvy demand.
 
-An interesting result that was generated from the model is that higher minority decreases the number of trips on average. This could highlight the societal links between race and socioeconomic status implicitly because one would not expect minority to directly affect the number of trips.
+From the model, we can see that PARK_AREA_ACRES has a significant negative coefficient, meaning that areas with more park space tend to see fewer Divvy trips. This may seem counterintuitive but could imply that stations near large parks are less used for commuting and more for occasional leisure rides, which might lead to lower average trip counts.
 
-```{r}
-plot(fit, which=1)
-```
+Another interesting result generated from the model is that higher minority decreases the number of trips on average. This could highlight the societal links between race and socioeconomic status implicitly because one would not expect minority to directly affect the number of trips.
 
-The residual plot shows that the residuals are roughly centered around zero with no clear pattern, suggesting that the model's linearity assumption is reasonable. The spread of residuals appears fairly constant across fitted values, showing no major signs of heteroscedasticity.
+EDU shows a positive and significant effect, implying that areas with more educated populations are associated with higher Divvy usage. This could reflect a greater tendency to adopt alternative transportation options among more educated residents.
+
+Finally, both cbd_index and criminal_index are highly significant, with cbd_index positively associated with trips and criminal_index negatively associated. These results are quite intuitive: proximity to business and transit hubs strongly increases demand, while higher crime levels reduce it. Together, they highlight how both accessibility and perceived safety play critical roles in shaping urban mobility patterns.
 
 
 ```{r}
@@ -126,4 +126,9 @@ vif(fit)
 
 Notice that the VIFs for all predictors are quite low (close to 1), indicating that multicollinearity is not a concern and that the predictors are largely independent of one another.
 
-# Summary
+
+```{r}
+plot(fit, which=1)
+```
+
+The residual plot shows that the residuals are roughly centered around zero with no clear pattern, suggesting that the model's linearity assumption is reasonable. The spread of residuals appears fairly constant across fitted values, showing no major signs of heteroscedasticity.
