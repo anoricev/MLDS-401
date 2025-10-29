@@ -101,6 +101,12 @@ vars <- c('trips', 'PARK_AREA_ACRES', 'PER_CAPITA_INCOME', 'POPULATION_SQ_MILE',
 pairs.panels(bike[, vars], stars=T, density=T)
 ```
 
+Looking at the correlation matrix, we can compare how the predictors are correlated with trips. The most notable relationships are between trips and POPULATION_SQ_MILE, MINORITY, EDU, cbd_index, and to a lesser extent, PARK_AREA_ACRES and criminal_index. The signs of these correlations indicate that the number of bike trips is, on average, higher in dense, well-educated, central areas, while areas with larger park acreage, higher minority populations, and higher crime rates tend to see fewer bike trips.
+
+A higher number of trips in dense areas makes sense, as higher population density leads to greater travel demand, more congestion, and less parking availability — all of which encourage biking. Similarly, it is reasonable that areas with large parks have fewer rentals, since such areas are often less urbanized or have fewer bike stations. Finally, higher crime rates are logically associated with fewer trips, as safety concerns likely reduce bike usage.
+
+There is also no significant correlation between the number of trips and per-capita income, suggesting that income level is not a major factor in determining bike-share usage. 
+
 # Fit, residual plot, and VIFs
 
 ```{r}
