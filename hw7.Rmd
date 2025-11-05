@@ -94,22 +94,16 @@ mean((y_test - pred_lasso)^2)
 
 ## (f). Add transformations to improve your model (work hard on this). Report test set MSE for stepwise, ridge and lasso. Which transformations are important, by coming into the stepwise and/or lasso models?
 
-```{r, warining=False}
-library(psych)
-pairs(train_data[, c("logcrim", "zn", "indus", "chas", "nox")])
-pairs(train_data[, c("logcrim", "rm", "age", "dis", "rad")])
-pairs(train_data[, c("logcrim", "tax", "ptratio", "black", "lstat")])
-```
 ```{r}
 predictors <- c("zn", "indus", "chas", "nox", "rm", "age", "dis",
                 "rad", "tax", "ptratio", "black", "lstat", "medv")
 
 par(mfrow = c(3, 5)) 
 for (var in predictors) {
-  plot(boston[[var]], logcrim,
+  plot(boston[[var]], boston$logcrim,
        xlab = var, ylab = "log(crim)",
        main = paste("log(crim) vs", var))
-  lines(lowess(boston[[var]], logcrim), col="red", lwd=2)
+  lines(lowess(boston[[var]], boston$logcrim), col="red", lwd=2)
 }
 par(mfrow = c(1,1))
 ```
@@ -192,12 +186,11 @@ fit1 <- lm(y ~ x1, data=dat)
 summary(fit1)
 ```
 
-Not significant as F-statistic p-value is 0.9945 > 0.05. The residuals are largely homoscedastic. Although the red line does not exactly coincide with the 0 line, there is not a large amount of data and the residuals are distributed around 0 without a noticeable pattern. The Cook's distance plots indicates no problematic residuals.
-
 ```{r}
 plot(fit1)
 ```
 
+Not significant as F-statistic p-value is 0.9945 > 0.05. The residuals are largely homoscedastic. Although the red line does not exactly coincide with the 0 line, there is not a large amount of data and the residuals are distributed around 0 without a noticeable pattern. The Cook's distance plots indicates no problematic residuals.
 
 ## (c) Regress y on x2. Is the overall model significant? Examine the residuals and comment.
 
@@ -206,12 +199,11 @@ fit2 <- lm(y ~ x2, data=dat)
 summary(fit2)
 ```
 
-Not significant as F-statistic p-value is 0.106 > 0.05. These residuals exhibit the same behavior as those from part b. There are no problematic Cook's distance values and there is not a noticeable pattern to the residuals.
-
-
 ```{r}
 plot(fit2)
 ```
+
+Not significant as F-statistic p-value is 0.106 > 0.05. These residuals exhibit the same behavior as those from part b. There are no problematic Cook's distance values and there is not a noticeable pattern to the residuals.
 
 ## (d) Regress y on both x1 and x2. Is the overall model significant? Examine the residuals and comment.
 
@@ -220,11 +212,11 @@ fit3 <- lm(y ~ x1 + x2, data=dat)
 summary(fit3)
 ```
 
-Significant as F-statistic p-value is 0.01507 < 0.05. The residuals display a clear pattern in that they are linear with a positive slope. There is also a residual with a large Cook's distance, inidicating an issue. 
 ```{r}
 plot(fit3)
 ```
 
+Significant as F-statistic p-value is 0.01507 < 0.05. The residuals display a clear pattern in that they are linear with a positive slope. There is also a residual with a large Cook's distance, indicating an issue. 
 
 ## (e) Discuss the implications of this example on forward and backward selection. Assume that you will use a significance level for entry into the model of 0.05.
 
@@ -232,8 +224,6 @@ In this example, both simple models, y ~ x1 and y ~ x2, are not statistically si
 
 Forward selection: stop at the null model because neither y ~ x1 or y ~ x2 is not significant
 Backward selection: ends up keeping both predictors since the full model is significant
-
-This shows the limitations of the two iterative model selection methods.
 
 If the predictors are correlated with each other but not with the response variable, then using forward or backward selection will not work because adding or dropping a variable will not increase or decrease SSE. The predictions (y hat) will not change much meaning the residuals won't either, so SSE will also not change.
 
@@ -315,5 +305,4 @@ lasso_pred <- predict(lasso_model, X_test)
 mean((Y_test - lasso_pred)^2)
 ```
 The MSEs in order of lowest to highest are: true, lasso, step, ridge
-
 
