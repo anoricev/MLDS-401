@@ -100,7 +100,19 @@ pairs(train_data[, c("logcrim", "zn", "indus", "chas", "nox")])
 pairs(train_data[, c("logcrim", "rm", "age", "dis", "rad")])
 pairs(train_data[, c("logcrim", "tax", "ptratio", "black", "lstat")])
 ```
+```{r}
+predictors <- c("zn", "indus", "chas", "nox", "rm", "age", "dis",
+                "rad", "tax", "ptratio", "black", "lstat", "medv")
 
+par(mfrow = c(3, 5)) 
+for (var in predictors) {
+  plot(boston[[var]], logcrim,
+       xlab = var, ylab = "log(crim)",
+       main = paste("log(crim) vs", var))
+  lines(lowess(boston[[var]], logcrim), col="red", lwd=2)
+}
+par(mfrow = c(1,1))
+```
 
 ```{r}
 boston2 <- boston %>%
@@ -150,7 +162,7 @@ lasso_best2 <- glmnet(x_train2, y_train2, alpha = 0, lambda = lasso_lambda2)
 pred_lasso2 <- predict(lasso_best2, x_test2)
 mean((y_test2 - pred_lasso2)^2)
 ```
-
+When looking at the plots of each predictor versus the log(crim), we decided on the above transformations through trial and error to minimize the MSE. The most important variables are the ones that we added transformations to as a result of plot examination. The ones without transformation were largely linear in nature already. 
 
 # Question 2
 
@@ -180,7 +192,7 @@ fit1 <- lm(y ~ x1, data=dat)
 summary(fit1)
 ```
 
-Not significant as F-statistic p-value is 0.9945 > 0.05
+Not significant as F-statistic p-value is 0.9945 > 0.05. The residuals are largely homoscedastic. Although the red line does not exactly coincide with the 0 line, there is not a large amount of data and the residuals are distributed around 0 without a noticeable pattern. The Cook's distance plots indicates no problematic residuals.
 
 ```{r}
 plot(fit1)
@@ -194,7 +206,8 @@ fit2 <- lm(y ~ x2, data=dat)
 summary(fit2)
 ```
 
-Not significant as F-statistic p-value is 0.106 > 0.05
+Not significant as F-statistic p-value is 0.106 > 0.05. These residuals exhibit the same behavior as those from part b. There are no problematic Cook's distance values and there is not a noticeable pattern to the residuals.
+
 
 ```{r}
 plot(fit2)
@@ -207,8 +220,7 @@ fit3 <- lm(y ~ x1 + x2, data=dat)
 summary(fit3)
 ```
 
-Significant as F-statistic p-value is 0.01507 < 0.05
-
+Significant as F-statistic p-value is 0.01507 < 0.05. The residuals display a clear pattern in that they are linear with a positive slope. There is also a residual with a large Cook's distance, inidicating an issue. 
 ```{r}
 plot(fit3)
 ```
@@ -221,7 +233,9 @@ In this example, both simple models, y ~ x1 and y ~ x2, are not statistically si
 Forward selection: stop at the null model because neither y ~ x1 or y ~ x2 is not significant
 Backward selection: ends up keeping both predictors since the full model is significant
 
-This shows the limitations of the two iterative model selection methods
+This shows the limitations of the two iterative model selection methods.
+
+If the predictors are correlated with each other but not with the response variable, then using forward or backward selection will not work because adding or dropping a variable will not increase or decrease SSE. The predictions (y hat) will not change much meaning the residuals won't either, so SSE will also not change.
 
 
 # Question 3
@@ -278,7 +292,7 @@ mean((test_df$y - pred_test)^2)
 
 ## (d) How does your model compare with the true model?
 
-In the true model, only x16, x17, x18, x19, and x20 are non-zero and truly influence Y. After performing stepwise selection on the training set, the model includes all these predictors but also has irrelevant ones (x6 and x13). Because the sample is small and the predictor number of 20 is relatively large, stepwise selection is unstable.
+In the true model, only x16, x17, x18, x19, and x20 are non-zero and truly influence Y. After performing stepwise selection on the training set, the model includes all these predictors but also has irrelevant ones (x6 and x13). Because the sample is small and the predictor number of 20 is relatively large, stepwise selection is unstable. The MSE of the true model is lower than the step model which makes sense intuitively.
 
 ## (e) Apply ridge regression to the training set and select $\lambda$ with cross validiation. Apply to the test set and note MSE.
 
@@ -300,5 +314,6 @@ lasso_model <- glmnet(X_train, Y_train, alpha = 1, lambda = lambda_lasso)
 lasso_pred <- predict(lasso_model, X_test)
 mean((Y_test - lasso_pred)^2)
 ```
+The MSEs in order of lowest to highest are: true, lasso, step, ridge
 
 
