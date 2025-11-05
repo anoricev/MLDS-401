@@ -1,0 +1,304 @@
+---
+title: "Homework 7"
+output: pdf_document
+date: "`r Sys.Date()`"
+author: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(glmnet)
+```
+
+# Question 1
+
+## (a). Load the data. Compute logcrim = log(crim). Submit descriptive statistics (n, mean, SD, min, max)
+
+```{r}
+boston <- read_csv('~/Desktop/401/hw/hw7/Boston.csv')
+boston['logcrim'] <- log(boston['crim'])
+```
+
+```{r}
+stat <- data.frame(n = nrow(boston['logcrim']),
+                   mean = mean(boston$logcrim),
+                   sd = sd(boston$logcrim),
+                   min = min(boston$logcrim),
+                   max = max(boston$logcrim))
+stat
+```
+
+## (b). Regress logcrim on all variables (except for crim) using only the training data. Apply the model to the test set and report the test set MSE. Examine the residual plot and comment.
+
+```{r}
+train_data <- filter(boston, train==TRUE)
+model <- lm(logcrim ~ . - crim - train, data = train_data)
+summary(model)
+```
+
+```{r}
+test_data <- filter(boston, train==FALSE)
+pred <- predict(model, test_data)
+mean((test_data$logcrim - pred)^2)
+```
+
+```{r}
+plot(model)
+```
+
+The red line is generally horizontal around 0, indicating that there's no major nonlinearity in the model. Also, the spread is mostly constant with the fitted values, showing the model is homoscedastic. Overall, the model fits pretty well.
+
+## (c). Apply backward selection to the model from the previous part. Report test set MSE.
+
+```{r}
+bkw_model = step(model, data=test_data, direction = 'backward')
+```
+
+```{r}
+bkw_pred <- predict(bkw_model, test_data)
+mean((test_data$logcrim - bkw_pred)^2)
+```
+
+## (d). Fit a ridge regression using cv.glmnet to choose the optimal $\lambda$ value. Report test set MSE
+
+```{r}
+set.seed(1)
+x_train <- model.matrix(logcrim ~ . - crim - train, train_data)[, -1]
+y_train <- train_data$logcrim
+x_test <- model.matrix(logcrim ~ . - crim - train, data = test_data)[, -1]
+y_test <- test_data$logcrim
+
+cv_ridge <- cv.glmnet(x_train, y_train, alpha = 0)
+ridge_lambda <- cv_ridge$lambda.min
+ridge_best <- glmnet(x_train, y_train, alpha = 0, lambda = ridge_lambda)
+pred_ridge <- predict(ridge_best, x_test)
+mean((y_test - pred_ridge)^2)
+```
+
+## (e). Fit a lasso regression using cv.glmnet to pick $\lambda$. Report test set MSE.
+
+```{r}
+set.seed(1)
+cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1)
+lasso_lambda <- cv_lasso$lambda.min
+lasso_best <- glmnet(x_train, y_train, alpha = 0, lambda = lasso_lambda)
+pred_lasso <- predict(lasso_best, x_test)
+mean((y_test - pred_lasso)^2)
+```
+
+
+## (f). Add transformations to improve your model (work hard on this). Report test set MSE for stepwise, ridge and lasso. Which transformations are important, by coming into the stepwise and/or lasso models?
+
+```{r, warining=False}
+library(psych)
+pairs(train_data[, c("logcrim", "zn", "indus", "chas", "nox")])
+pairs(train_data[, c("logcrim", "rm", "age", "dis", "rad")])
+pairs(train_data[, c("logcrim", "tax", "ptratio", "black", "lstat")])
+```
+
+
+```{r}
+boston2 <- boston %>%
+  mutate(
+    log_zn = log(zn + 1),
+    log_indus = log(indus + 1),
+    nox2 = nox^2,
+    age2 = age^2,
+    log_dis = log(dis + 1),
+    log_rad = log(rad + 1),
+    log_tax = log(tax + 1),
+    log_black = log(black + 1),
+    lstat2 = lstat^2
+  )
+
+train_data2 <- filter(boston2, train==TRUE)
+test_data2 <- subset(boston2, train == FALSE)
+
+model2 <- lm(logcrim ~ . - crim - train, data = train_data2)
+step_model2 <- step(model2)
+```
+
+```{r}
+pred_step <- predict(step_model2, test_data2)
+mean((test_data2$logcrim - pred_step)^2)
+```
+
+```{r}
+set.seed(1)
+x_train2 <- model.matrix(logcrim ~ . - crim - train, train_data2)[, -1]
+y_train2 <- train_data2$logcrim
+x_test2 <- model.matrix(logcrim ~ . - crim - train, data = test_data2)[, -1]
+y_test2 <- test_data2$logcrim
+
+cv_ridge2 <- cv.glmnet(x_train2, y_train2, alpha = 0)
+ridge_lambda2 <- cv_ridge2$lambda.min
+ridge_best2 <- glmnet(x_train2, y_train2, alpha = 0, lambda = ridge_lambda2)
+pred_ridge2 <- predict(ridge_best2, x_test2)
+mean((y_test2 - pred_ridge2)^2)
+```
+
+```{r}
+set.seed(1)
+cv_lasso2 <- cv.glmnet(x_train2, y_train2, alpha = 1)
+lasso_lambda2 <- cv_lasso2$lambda.min
+lasso_best2 <- glmnet(x_train2, y_train2, alpha = 0, lambda = lasso_lambda2)
+pred_lasso2 <- predict(lasso_best2, x_test2)
+mean((y_test2 - pred_lasso2)^2)
+```
+
+
+# Question 2
+
+```{r}
+dat = data.frame(
+  x1=c(2.23,2.57,2.87,3.1,3.39,2.83,3.02,2.14,3.04,3.26,3.39,2.35,2.76,3.9,3.15),
+  x2=c(9.66,8.94,4.4,6.64,4.91,8.52,8.04,9.05,7.71,5.11,5.05,8.51,6.59,4.9,6.96),
+  y=c(12.37,12.66,12,11.93,11.06,13.03,13.13,11.44,12.86,10.84,11.2,11.56,10.83,12.63,12.46))
+```
+
+## (a). Generate a scatterplot matrix and comment
+
+```{r}
+pairs(dat)
+```
+
+x1 vs x2: negative relationship
+
+x1 vs y: very slightly positive
+
+x2 vs y: very slightly positive
+
+## (b) Regress y on x1. Is the overall model significant? Examine the residuals and comment.
+
+```{r}
+fit1 <- lm(y ~ x1, data=dat)
+summary(fit1)
+```
+
+Not significant as F-statistic p-value is 0.9945 > 0.05
+
+```{r}
+plot(fit1)
+```
+
+
+## (c) Regress y on x2. Is the overall model significant? Examine the residuals and comment.
+
+```{r}
+fit2 <- lm(y ~ x2, data=dat)
+summary(fit2)
+```
+
+Not significant as F-statistic p-value is 0.106 > 0.05
+
+```{r}
+plot(fit2)
+```
+
+## (d) Regress y on both x1 and x2. Is the overall model significant? Examine the residuals and comment.
+
+```{r}
+fit3 <- lm(y ~ x1 + x2, data=dat)
+summary(fit3)
+```
+
+Significant as F-statistic p-value is 0.01507 < 0.05
+
+```{r}
+plot(fit3)
+```
+
+
+## (e) Discuss the implications of this example on forward and backward selection. Assume that you will use a significance level for entry into the model of 0.05.
+
+In this example, both simple models, y ~ x1 and y ~ x2, are not statistically significant, while the multiple regression y ~ x1 + x2 suggests apparent significance. However, the residual plot for y ~ x1 + x2 reveals a clear pattern rather than a random snowstorm, indicating that the model is overfitting rather than genuinely capturing a meaningful relationship. This likely arises because the dataset is small and the predictors are correlated, so adding more parameters artificially improves the fit without real predictive value.
+
+Forward selection: stop at the null model because neither y ~ x1 or y ~ x2 is not significant
+Backward selection: ends up keeping both predictors since the full model is significant
+
+This shows the limitations of the two iterative model selection methods
+
+
+# Question 3
+
+## (a). Generate a data set (set the seed first so that you can replicate your results) with p = 20 features, n = 1000 observatrions, and an associated quantitative response vector generated according to the model $Y = X\beta + \epsilon$ where $\beta$ has some elements that are exactly 0.
+
+```{r}
+set.seed(1)
+n <- 1000
+p <- 20
+
+X <- matrix(rnorm(n * p), n, p)
+beta <- c(rep(0, 15), sample(-10:10, 5))
+epsilon <- rnorm(n)
+Y = X %*% beta + epsilon
+```
+
+
+## (b) Split your data into a training set with 100 observations and a test set with 900.
+
+```{r}
+set.seed(1)
+
+train_index <- sample(1:1000, 100)
+X_train <- X[train_index, ]
+Y_train <- Y[train_index]
+
+X_test <- X[-train_index, ]
+Y_test <- Y[-train_index]
+```
+
+
+## (c) Perform stepwise selection on the training set, apply it to the test set and note MSE.
+
+```{r}
+set.seed(1)
+colnames(X_train) <- paste0('x', 1:20)
+colnames(X_test)  <- paste0('x', 1:20)
+
+train_df <- data.frame(y = Y_train, X_train)
+test_df <- data.frame(y = Y_test,  X_test)
+
+null_model <- lm(y ~ 1, data = train_df)
+full_model <- lm(y ~ ., data = train_df)
+
+step_model <- step(full_model)
+```
+
+```{r}
+pred_test <- predict(step_model, test_df)
+mean((test_df$y - pred_test)^2)
+```
+
+
+## (d) How does your model compare with the true model?
+
+In the true model, only x16, x17, x18, x19, and x20 are non-zero and truly influence Y. After performing stepwise selection on the training set, the model includes all these predictors but also has irrelevant ones (x6 and x13). Because the sample is small and the predictor number of 20 is relatively large, stepwise selection is unstable.
+
+## (e) Apply ridge regression to the training set and select $\lambda$ with cross validiation. Apply to the test set and note MSE.
+
+```{r}
+cv_ridge <- cv.glmnet(X_train, Y_train, alpha = 0)
+lambda_ridge <- cv_ridge$lambda.min
+ridge_model <- glmnet(X_train, Y_train, alpha = 0, lambda = lambda_ridge)
+ridge_pred <- predict(ridge_model, X_test)
+mean((Y_test - ridge_pred)^2)
+```
+
+
+## (f) Repeat the previous part for lasso
+
+```{r}
+cv_lasso <- cv.glmnet(X_train, Y_train, alpha = 1)
+lambda_lasso <- cv_lasso$lambda.min
+lasso_model <- glmnet(X_train, Y_train, alpha = 1, lambda = lambda_lasso)
+lasso_pred <- predict(lasso_model, X_test)
+mean((Y_test - lasso_pred)^2)
+```
+
+
