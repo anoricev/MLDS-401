@@ -33,7 +33,7 @@ plot(toxicity$x, toxicity$f,
      main = "Proportion of Insects Dying vs Dose Level")
 ```
 
-The logistic model is appropriate
+The logistic model is appropriate. The points follow a logistic curve, but it is difficult to determine because there are so few data points that the pattern is not easily seen without the help of trendlines.
 
 ## (b). Find the MLEs of the slope and intercept, e.g., using glm in R. State the fitted response function and superimpose it on the scatterplot from part (a)
 
@@ -66,7 +66,7 @@ lines(x_seq, pi, col = "blue")
 exp(b1)
 ```
 
-For each unit increase in dose on the log scale, the odds of an insect dying are multiplied by about 1.962
+For each unit increase in dose on the log scale, the odds of an insect dying are multiplied by about 1.962.
 
 ## (d). What is the estimated probability that an insect dies when the dose level is x = 3.5?
 
@@ -109,7 +109,7 @@ dat = data.frame(
 
 ## (a). Explain why Simpson's paradox occurs for these data.
 
-Simpson's paradox occurs in these data because the relationship between gender and admission reverses when we account for differences among departments. Overall, women appear to have a much lower admission rate than men. However, when the data are examined within each department, women actually have higher admission rates in four out of six departments. The paradox arises because women and men did not apply to the same mix of departments. A larger share of women applied to more competitive departments with lower overall acceptance rates, while a larger share of men applied to departments with higher admission rates. Although each department treats applicants fairly, the unequal distribution of applications across departments distorts the overall picture.CONFOUNDING VARIABLE 
+Simpson's paradox occurs in these data because the relationship between gender and admission reverses when we account for differences among departments. Overall, women appear to have a much lower admission rate than men. However, when the data are examined within each department, women actually have higher admission rates in four out of six departments. The paradox arises because women and men did not apply to the same mix of departments. A larger share of women applied to more competitive departments with lower overall acceptance rates, while a larger share of men applied to departments with higher admission rates. Although each department treats applicants fairly, the unequal distribution of applications across departments distorts the overall picture.
 
 ## (b). 
 
@@ -174,7 +174,7 @@ plot(defaulting$price, defaulting$expected_price,
 abline(0, 1, col = "red")
 ```
 
-The expected relationship does not hold because people defaulted.
+The expected relationship does not hold because people defaulted and therefore the price does not exactly follow this pattern. There is a clustering around the bottom left because people paid less than expected or did not stay for a long period of time.
 
 ## (c). Generate histograms of the downpmt variable, varying the number of bins. What pattern do you see? Why do you think this is?
 
@@ -192,8 +192,7 @@ hist(defaulting$downpmt,
      xlab = "Down Payment")
 ```
 
-Highly right-skewed because most people tend to make small or minimal down payments and only a small number of individuals pay much larger amounts.  
-Increasing the number of bins provides more detail in the lower range but confirms the same pattern
+Highly right-skewed because most people tend to make small or minimal down payments and only a small number of individuals pay much larger amounts. Increasing the number of bins provides more detail in the lower range but confirms the same pattern.
 
 ## (d). 
 
@@ -234,6 +233,7 @@ defaulting %>%
   ylab("Percent Cancel") +
   xlab("Downpayment Group")
 ```
+As you pay more for the down payment on the whole the percentage chance you'll cancel decreases. Generally pmttype 1 has the most chance of cancelling as compared to the other types - this makes sense because it is the "book" method which is easier to cancel than the methods that require putting a credit card in that could be automatically charged. On the whole people who used the fitness club more in the first week were less likely to cancel.
 
 ## (f).
 
@@ -261,4 +261,38 @@ par(pty = "s")
 plot.roc(defaulting2$default, fit1$fitted.values, print.auc = TRUE)
 ```
 
+```{r}
+coefs <- coef(fit1)
+coef_df <- data.frame(
+  variable = rownames(coefs),
+  coefficient = as.numeric(coefs)
+)
+coef_df$odds_ratio <- exp(coef_df$coefficient)
+coef_df <- coef_df[order(abs(coef_df$odds_ratio), decreasing = TRUE), ]
+coef_df
+```
+The most impactful variables were the price - which had the most positive change when increasing by 1 unit and the Q4 dummy for down payment which had the most negative effect. This makes sense because if you paid the highest down payment you would be much less likely to cancel than if you paid a small down payment.
 
+# Question 5
+
+Confirming the equation with Question 1 data:
+```{r}
+toxicity <- data.frame(
+  x = 1:6,
+  n = rep(250, 6),
+  s = c(28, 53, 93, 126, 172, 197)
+)
+fit <- glm(cbind(s, n - s) ~ x, family = binomial, data = toxicity)
+
+toxicity$phat <- fitted(fit)
+toxicity$f_obs <- toxicity$s / toxicity$n
+
+toxicity$term <- with(toxicity,
+                      s * log(phat / f_obs) +
+                        (n - s) * log((1 - phat) / (1 - f_obs))
+)
+
+D <- -2 * sum(toxicity$term)
+D
+```
+This deviance value matches the residual deviance value from the fit in Question 1, which confirms the equation.
