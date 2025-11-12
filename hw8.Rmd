@@ -1,0 +1,264 @@
+---
+title: "Homework 8"
+output: pdf_document
+date: "`r Sys.Date()`"
+author: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(car)
+library(pROC)
+```
+
+
+# Question 1
+
+```{r}
+toxicity = data.frame(x=1:6, n=rep(250,6), s=c(28,53,93,126,172,197))
+fit = glm(s/n ~ x, binomial, toxicity, weight=n)
+```
+
+## (a). Plot the estimated proportions $f_j$ = $s_j$ / $n_j$ against $x_j$. Does the plot support the analyst's belief that the logistic response function is appropriate?
+
+```{r}
+toxicity$f = toxicity$s / toxicity$n
+
+plot(toxicity$x, toxicity$f, 
+     main = "Proportion of Insects Dying vs Dose Level")
+```
+
+The logistic model is appropriate
+
+## (b). Find the MLEs of the slope and intercept, e.g., using glm in R. State the fitted response function and superimpose it on the scatterplot from part (a)
+
+```{r}
+fit$coef
+```
+
+Thus, the fitted response function is 
+
+$$
+\frac{e^{-2.644 + 0.674x}}{1 + e^{-2.644 + 0.674x}}
+$$
+
+```{r}
+x_seq <- seq(1, 6)
+b0 <- fit$coef[1]
+b1 <- fit$coef[2]
+pi <- exp(b0 + b1 * x_seq) / (1 + exp(b0 + b1 * x_seq))
+
+plot(toxicity$x, toxicity$f, 
+     main = "Proportion of Insects Dying vs Dose Level")
+lines(x_seq, pi, col = "blue")
+
+```
+
+
+## (c). Obtain exp($\beta1$) and interpret this number.
+
+```{r}
+exp(b1)
+```
+
+For each unit increase in dose on the log scale, the odds of an insect dying are multiplied by about 1.962
+
+## (d). What is the estimated probability that an insect dies when the dose level is x = 3.5?
+
+```{r}
+predict(fit, data.frame(x=3.5), type="response")
+```
+
+## (e). What is the estimated median lethal dose—that is, the dose for which 50% of the experimental insects are expected to die?
+
+$$
+\log\left(\frac{0.5}{1 - 0.5}\right) = \beta_0 + \beta_1 x 
+\quad \Longrightarrow \quad
+x = \frac{\log(1) - \beta_0}{\beta_1}
+$$
+
+```{r}
+(log(1) - b0) / b1
+```
+
+## (f). Find a 99% confidence interval for $\beta1$. Convert it into one for the odds ratio.
+
+```{r, message=FALSE}
+confint(fit, "x", level = 0.99)
+```
+
+```{r, message=FALSE}
+exp(confint(fit, "x", level = 0.99))
+```
+
+
+# Question 2
+
+```{r}
+dat = data.frame(
+  female = c(rep(0,6), rep(1,6)),
+  dept = rep(LETTERS[1:6],2),
+  apps = c(825,560,325,417,191,373,108,25,593,375,393,341),
+  admits = c(512,353,120,138,53,22,89,17,202,131,94,24))
+```
+
+## (a). Explain why Simpson's paradox occurs for these data.
+
+Simpson's paradox occurs in these data because the relationship between gender and admission reverses when we account for differences among departments. Overall, women appear to have a much lower admission rate than men. However, when the data are examined within each department, women actually have higher admission rates in four out of six departments. The paradox arises because women and men did not apply to the same mix of departments. A larger share of women applied to more competitive departments with lower overall acceptance rates, while a larger share of men applied to departments with higher admission rates. Although each department treats applicants fairly, the unequal distribution of applications across departments distorts the overall picture.CONFOUNDING VARIABLE 
+
+## (b). 
+
+```{r}
+agg <- aggregate(cbind(admits, apps) ~ female, data = dat, sum)
+agg$rate <- agg$admits / agg$apps
+
+p_men <- agg$rate[agg$female == 0]
+p_women <- agg$rate[agg$female == 1]
+odds_men <- p_men / (1 - p_men)
+odds_women <- p_women / (1 - p_women)
+log_odds_ratio <- log(odds_men / odds_women)
+log_odds_ratio
+```
+
+```{r}
+dat$gender <- 1 - dat$female
+fit_gender <- glm(cbind(admits, apps - admits) ~ gender, binomial, dat)
+summary(fit_gender)
+```
+
+## (c). 
+
+```{r}
+fit_gender_dept <- glm(cbind(admits, apps - admits) ~ gender + dept, 
+                       binomial, dat)
+summary(fit_gender_dept)
+```
+
+The change in sign of the gender coefficient from positive to negative indicates that within the same department, women are slightly more likely to be admitted. It illustrates Simpson's paradox as men appear more likely to be admitted overall when departments are ignored. However, after controlling for department, women have slightly higher admission rates within most departments.
+
+# Question 3
+
+```{r}
+library(readr)
+defaulting <- read_csv("~/Desktop/401/hw/hw8/Defaultsmall.csv")
+```
+
+## (a). Study the age variable and list things that don't make sense
+
+```{r}
+defaulting %>%
+  group_by(age) %>%
+  filter(age < 18 | age > 90) %>%
+  count() %>%
+  as.data.frame()
+```
+
+The dataset is from a fitness club for adults but there are ages below 18 and some of 99. 
+
+## (b). What relationship do you expect between downpmt, monthdue and price? Does the relationship hold approximately?
+
+Expected relationship: price = downpmt + 36 * monthdue
+
+```{r}
+defaulting <- defaulting %>%
+  mutate(expected_price = downpmt + 36 * monthdue)
+
+plot(defaulting$price, defaulting$expected_price,
+     xlab = "Actual Price", ylab = "Expected Price",
+     main = "Actual vs Expected Price")
+abline(0, 1, col = "red")
+```
+
+The expected relationship does not hold because people defaulted.
+
+## (c). Generate histograms of the downpmt variable, varying the number of bins. What pattern do you see? Why do you think this is?
+
+```{r}
+hist(defaulting$downpmt,
+     breaks = 10,
+     main = "Histogram of Down Payment (10 bins)",
+     xlab = "Down Payment")
+```
+
+```{r}
+hist(defaulting$downpmt,
+     breaks = 100,
+     main = "Histogram of Down Payment (100 bins)",
+     xlab = "Down Payment")
+```
+
+Highly right-skewed because most people tend to make small or minimal down payments and only a small number of individuals pay much larger amounts.  
+Increasing the number of bins provides more detail in the lower range but confirms the same pattern
+
+## (d). 
+
+```{r}
+names(defaulting)
+```
+
+price: keep
+age: drop the implausible values 
+downpmt:log or divide into groups
+monthdue: keep 
+use: divide into groups and drop the missing values
+pmttype: use as factors  
+gender: use as factors   
+
+## (e). 
+
+```{r, warning=FALSE}
+defaulting <- defaulting %>%
+  mutate(
+    down4 = cut(downpmt,
+                breaks = quantile(downpmt, probs = seq(0, 1, 0.25)),
+                include.lowest = TRUE,
+                labels = c("Q1", "Q2", "Q3", "Q4")),
+    use3 = cut(use,
+               breaks = c(-Inf, 0, 2, 8),
+               labels = c("0", "1–2", "3–8"))
+  )
+
+defaulting %>%
+  filter(!is.na(use3)) %>%
+  group_by(use3, down4, pmttype)%>%
+  summarize(mean=100*mean(default)) %>%
+  ggplot(aes(down4,mean,color=pmttype))+
+  geom_line(aes(group=pmttype)) +
+  geom_point() +
+  facet_grid(~use3, labeller = label_both) +
+  ylab("Percent Cancel") +
+  xlab("Downpayment Group")
+```
+
+## (f).
+
+```{r}
+defaulting2 <- defaulting %>%
+  filter(age %in% c(18:90)) %>%
+  mutate(
+    gender  = factor(gender, levels = c(1, 2), labels = c("Male", "Female")),
+    pmttype = factor(pmttype,
+                     levels = c(1, 3, 4, 5),
+                     labels = c("Book", "Statement", "Checking", "CreditCard"))
+  )
+
+fit1 <- glm(default ~ price + down4 + pmttype + age + gender,
+            binomial, defaulting2)
+summary(fit1)
+```
+
+```{r}
+vif(fit1)
+```
+
+```{r}
+par(pty = "s")
+plot.roc(defaulting2$default, fit1$fitted.values, print.auc = TRUE)
+```
+
+
