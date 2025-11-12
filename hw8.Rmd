@@ -131,6 +131,8 @@ fit_gender <- glm(cbind(admits, apps - admits) ~ gender, binomial, dat)
 summary(fit_gender)
 ```
 
+This sample log odds ratio is equal to the estimated $\beta$ coefficient for gender
+
 ## (c). 
 
 ```{r}
@@ -192,7 +194,7 @@ hist(defaulting$downpmt,
      xlab = "Down Payment")
 ```
 
-Highly right-skewed because most people tend to make small or minimal down payments and only a small number of individuals pay much larger amounts. Increasing the number of bins provides more detail in the lower range but confirms the same pattern.
+Highly right-skewed because most people tend to make small or minimal down payments and only a small number of individuals pay much larger amounts.   Increasing the number of bins provides more detail in the lower range but confirms the same pattern.
 
 ## (d). 
 
@@ -200,11 +202,11 @@ Highly right-skewed because most people tend to make small or minimal down payme
 names(defaulting)
 ```
 
-price: keep
-age: drop the implausible values 
-downpmt:log or divide into groups
-monthdue: keep 
-use: divide into groups and drop the missing values
+price: keep  
+age: drop the implausible values  
+downpmt: log or divide into groups  
+monthdue: keep  
+use: divide into groups and drop the missing values  
 pmttype: use as factors  
 gender: use as factors   
 
@@ -233,7 +235,8 @@ defaulting %>%
   ylab("Percent Cancel") +
   xlab("Downpayment Group")
 ```
-As you pay more for the down payment on the whole the percentage chance you'll cancel decreases. Generally pmttype 1 has the most chance of cancelling as compared to the other types - this makes sense because it is the "book" method which is easier to cancel than the methods that require putting a credit card in that could be automatically charged. On the whole people who used the fitness club more in the first week were less likely to cancel.
+
+As you pay more for the down payment on the whole the percentage chance you will cancel decreases. Generally pmttype 1 has the most chance of cancelling as compared to the other types - this makes sense because it is the "book" method which is easier to cancel than the methods that require putting a credit card in that could be automatically charged. On the whole people who used the fitness club more in the first week were less likely to cancel.
 
 ## (f).
 
@@ -241,9 +244,8 @@ As you pay more for the down payment on the whole the percentage chance you'll c
 defaulting2 <- defaulting %>%
   filter(age %in% c(18:90)) %>%
   mutate(
-    gender  = factor(gender, levels = c(1, 2), labels = c("Male", "Female")),
+    gender  = factor(gender, labels = c("Male", "Female")),
     pmttype = factor(pmttype,
-                     levels = c(1, 3, 4, 5),
                      labels = c("Book", "Statement", "Checking", "CreditCard"))
   )
 
@@ -251,6 +253,8 @@ fit1 <- glm(default ~ price + down4 + pmttype + age + gender,
             binomial, defaulting2)
 summary(fit1)
 ```
+
+To build this model, we first restricted the dataset to customers between the ages of 18 and 90 to ensure a realistic age range. The categorical variables were then encoded as factors for proper treatment in the logistic regression. The logistic regression model was fit with default as the dependent variable, and price, down4, pmttype, age, and gender as predictors.
 
 ```{r}
 vif(fit1)
@@ -261,21 +265,28 @@ par(pty = "s")
 plot.roc(defaulting2$default, fit1$fitted.values, print.auc = TRUE)
 ```
 
+The model performed pretty well. The deviance dropped substantially from 16712 to 11039, and the AUC value of 0.891 indicates good predictive accuracy. All major predictors were statistically significant at the 1% level. The coefficient for price is positive, suggesting that higher prices increase the probability of default. The negative coefficients for down4 and pmttype indicate that higher down payments and more formal payment methods lower the risk of default. Age has a small negative effect, meaning that older customers tend to be more reliable. The coefficient for genderFemale shows that female customers are slightly less likely to default. The VIF are all near 1, confirming that there is no multicollinearity problem.
+
+From a strategic standpoint, the results suggest several actionable insights. Increasing required down payments or encouraging customers to use secure payment channels could significantly reduce the likelihood of default. Since high-priced items are associated with greater default risk, stricter screening or higher deposit requirements may be advisable for those cases. Additionally, younger male customers may represent a higher-risk segment, and institutions could consider closer monitoring or adjusted credit terms for that group. 
+
 ```{r}
 coefs <- coef(fit1)
 coef_df <- data.frame(
-  variable = rownames(coefs),
+  variable = names(coefs),
   coefficient = as.numeric(coefs)
 )
 coef_df$odds_ratio <- exp(coef_df$coefficient)
-coef_df <- coef_df[order(abs(coef_df$odds_ratio), decreasing = TRUE), ]
+coef_df <- coef_df[order(abs(coef_df$odds_ratio), decreasing = FALSE), ]
 coef_df
 ```
-The most impactful variables were the price - which had the most positive change when increasing by 1 unit and the Q4 dummy for down payment which had the most negative effect. This makes sense because if you paid the highest down payment you would be much less likely to cancel than if you paid a small down payment.
+
+From the summary table, the variables that have the strongest predictive power in the model are down4 and pmttype. Specifically, the lowest odds ratios are associated with Checking, Credit Card, and down payment Q4. All of them greatly reduce the likelihood of default. Price has a positive coefficient but an odds ratio near 1, indicating that higher price slightly increases default probability but is a weaker predictor in magnitude.  
+
 
 # Question 5
 
 Confirming the equation with Question 1 data:
+
 ```{r}
 toxicity <- data.frame(
   x = 1:6,
@@ -295,4 +306,9 @@ toxicity$term <- with(toxicity,
 D <- -2 * sum(toxicity$term)
 D
 ```
+
+```{r}
+summary(fit)
+```
+
 This deviance value matches the residual deviance value from the fit in Question 1, which confirms the equation.
