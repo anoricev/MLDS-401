@@ -93,12 +93,12 @@ summary(fit2)
 -apply(coef(fit2), 2, diff)
 ```
 
-log(Cpub2018 + 1): Counties with more historical newspapers are much more likely to have 0 newspapers than 1 newspapers  
-Age: Counties with higher avg age in 2021 are slightly more likely to have 0 newspapers relative to 1  
-SES21: Counties with higher socioeconomic status are more likely to have 0 newspapers than 1  
-Lpopdens2021: Higher population density strongly are substantially more likely to have 0 newspapers than 1  
-Lblack2021: Counties with larger Black populations are slight more likely to have 0 newspapers than 1  
-Lhisp2021: Counties with larger Hispanic populations are slight less likely to have 0 than 1 newspapers  
+log(Cpub2018 + 1): Counties with more historical newspapers are much less likely to have 0 newspapers than 1 newspapers  
+Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 1  
+SES21: Counties with higher socioeconomic status are less likely to have 0 newspapers than 1  
+Lpopdens2021: Higher population density strongly are substantially less likely to have 0 newspapers than 1  
+Lblack2021: Counties with larger Black populations are slight less likely to have 0 newspapers than 1  
+Lhisp2021: Counties with larger Hispanic populations are slight more likely to have 0 than 1 newspapers  
   
 **0 vs 2+ Logit:**
 
