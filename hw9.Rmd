@@ -1,0 +1,237 @@
+---
+title: "hw9"
+output: pdf_document
+date: "`r Sys.Date()`"
+author: "Arielle Weinstein, Jack Bailey, Junbo (Jacob) Lian, Veronica Lin, Jiashu Huang"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(readr)
+library(nnet)
+```
+
+
+# Question 2
+
+```{r}
+news <- read.csv("401/hw/hw9/NewsDesert.csv")
+```
+
+## (a). Create a variable pub3.2023 that takes three values: 0 newspapers, 1 newspaper, or 2+ newspapers. Submit a frequency distribution (table). 
+
+```{r}
+news$pub3.2023 <- cut(
+  news$Cpub2023,
+  breaks = c(-1, 0, 1, Inf),
+  labels = c("0", "1", "2+")
+)
+
+table(news$pub3.2023)
+```
+
+## (b). Use a multinomial regression to predict pub3.2023 from the demographics. Find the missing logit. Interpret all three logits (0 vs. 1, 1 vs. 2+ and 0 vs. 2+).
+
+```{r}
+fit1 <- multinom(factor(pub3.2023, levels = c("2+", "0", "1")) ~ 
+                  age + SES21 + Lpopdens2021 + Lblack2021 + Lhisp2021, 
+                news)
+summary(fit1)
+```
+
+**0 vs 1 Logit:** 
+
+```{r}
+-apply(coef(fit1), 2, diff)
+```
+
+Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 1  
+SES21: Counties with higher socioeconomic status are slightly more likely to have 0 newspapers than 1  
+Lpopdens2021: Higher population density strongly are substantially less likely to have 0 newspapers than 1  
+Lblack2021: Counties with larger Black populations are slight more likely to have 0 newspapers than 1  
+Lhisp2021: Counties with larger Hispanic populations are more likely to have 0 than 1 newspapers  
+  
+**0 vs 2+ Logit:**
+
+```{r}
+coef(fit1)["0", ]
+```
+
+Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 2+  
+SES21: Counties with higher socioeconomic status are less likely to have 0 newspapers than 2+  
+Lpopdens2021: Higher population density strongly reduces the odds of having 0 newspapers than 2+  
+Lblack2021: Counties with larger Black populations are substantially more likely to have 0 newspapers than 2+  
+Lhisp2021: Counties with larger Hispanic populations are slightly less likely to have 0 than 2+ newspapers  
+  
+**1 vs 2+ Logit:**
+
+```{r}
+coef(fit1)["1", ]
+```
+
+Age: Counties with higher avg age in 2021 are slightly more likely to have 1 newspapers relative to 2+  
+SES21: Counties with higher socioeconomic status are less likely to have 1 newspapers than 2+  
+Lpopdens2021: Higher population density substantially reduces the odds of having 1 newspapers than 2+  
+Lblack2021: Counties with larger Black populations are substantially more likely to have 1 newspapers than 2+  
+Lhisp2021: Counties with larger Hispanic populations are less likely to have 1 than 2+ newspapers    
+
+## (c). Use a multinomial regression to predict pub3.2023 from the AR1+ variables. Find the missing logit and interpret the model.
+
+```{r}
+fit2 <- multinom(factor(pub3.2023, levels = c("2+", "0", "1")) ~ 
+                  log(Cpub2018 + 1) + age + SES21 + Lpopdens2021 + Lblack2021 + 
+                  Lhisp2021, news)
+summary(fit2)
+```
+  
+**0 vs 1 Logit:** 
+
+```{r}
+-apply(coef(fit2), 2, diff)
+```
+
+log(Cpub2018 + 1): Counties with more historical newspapers are much more likely to have 0 newspapers than 1 newspapers  
+Age: Counties with higher avg age in 2021 are slightly more likely to have 0 newspapers relative to 1  
+SES21: Counties with higher socioeconomic status are more likely to have 0 newspapers than 1  
+Lpopdens2021: Higher population density strongly are substantially more likely to have 0 newspapers than 1  
+Lblack2021: Counties with larger Black populations are slight more likely to have 0 newspapers than 1  
+Lhisp2021: Counties with larger Hispanic populations are slight less likely to have 0 than 1 newspapers  
+  
+**0 vs 2+ Logit:**
+
+```{r}
+coef(fit2)["0", ]
+```
+
+log(Cpub2018 + 1): Counties with more historical newspapers are much less likely to have 0 newspapers than 2+ newspapers  
+Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 2+  
+SES21: Counties with higher socioeconomic status are less likely to have 0 newspapers than 2+  
+Lpopdens2021: Higher population density strongly reduces the odds of having 0 newspapers than 2+  
+Lblack2021: Counties with larger Black populations are slightly less likely to have 0 newspapers than 2+  
+Lhisp2021: Counties with larger Hispanic populations are more likely to have 0 than 2+ newspapers  
+  
+**1 vs 2+ Logit:**
+
+```{r}
+coef(fit2)["1", ]
+```
+
+log(Cpub2018 + 1): Counties with more historical newspapers are much less likely to have 1 newspapers than 2+ newspapers  
+Age: Counties with higher avg age in 2021 are slightly more likely to have 1 newspapers relative to 2+  
+SES21: Counties with higher socioeconomic status are less likely to have 1 newspapers than 2+  
+Lpopdens2021: Higher population density is slight more likely having 1 newspapers than 2+  
+Lblack2021: Counties with larger Black populations are slightly more likely to have 1 newspapers than 2+  
+Lhisp2021: Counties with larger Hispanic populations are more likely to have 1 than 2+ newspapers  
+
+## (d). For your two models, find accuracy; per-class precision, recall and F1; and macro precision, recall and F1. What do you conclude about which classes can be easily distinguished versus those that are more difficult to predict?
+
+```{r}
+news$pub3.2023 <- factor(news$pub3.2023, levels = c("2+", "0", "1"))
+pred1 <- predict(fit1, type = "class")
+pred2 <- predict(fit2, type = "class")
+cm1 <- table(pred1, news$pub3.2023)
+cm2 <- table(pred2, news$pub3.2023)
+```
+
+```{r}
+get_metrics <- function(cm, class) {
+  
+  TP <- cm[class, class]
+  FP <- sum(cm[class, ]) - TP
+  FN <- sum(cm[, class]) - TP
+  TN <- sum(cm) - TP - FP - FN
+  
+  precision <- TP / (TP + FP)
+  recall <- TP / (TP + FN)
+  f1 <- 2 * precision * recall / (precision + recall)
+  
+  return(data.frame(
+    Class = class,
+    Precision = precision,
+    Recall = recall,
+    F1 = f1
+  ))
+}
+```
+
+**Demographic Model**
+
+```{r}
+get_metrics(cm1, "0")
+```
+
+```{r}
+get_metrics(cm1, "1")
+```
+
+```{r}
+get_metrics(cm1, "2+")
+```
+
+```{r}
+macro_prec1 <- mean(c(
+  get_metrics(cm1, "2+")$Precision,
+  get_metrics(cm1, "0")$Precision,
+  get_metrics(cm1, "1")$Precision
+), na.rm = TRUE)
+
+macro_rec1 <- mean(c(
+  get_metrics(cm1, "2+")$Recall,
+  get_metrics(cm1, "0")$Recall,
+  get_metrics(cm1, "1")$Recall
+), na.rm = TRUE)
+
+macro_f1_1 <- mean(c(
+  get_metrics(cm1, "2+")$F1,
+  get_metrics(cm1, "0")$F1,
+  get_metrics(cm1, "1")$F1
+), na.rm = TRUE)
+
+data.frame(macro_prec1, macro_rec1, macro_f1_1)
+```
+
+
+**AR1+ Model**
+
+```{r}
+get_metrics(cm2, "0")
+```
+
+```{r}
+get_metrics(cm2, "1")
+```
+
+```{r}
+get_metrics(cm2, "2+")
+```
+
+```{r}
+macro_prec2 <- mean(c(
+  get_metrics(cm2, "2+")$Precision,
+  get_metrics(cm2, "0")$Precision,
+  get_metrics(cm2, "1")$Precision
+), na.rm = TRUE)
+
+macro_rec2 <- mean(c(
+  get_metrics(cm2, "2+")$Recall,
+  get_metrics(cm2, "0")$Recall,
+  get_metrics(cm2, "1")$Recall
+), na.rm = TRUE)
+
+macro_f1_2 <- mean(c(
+  get_metrics(cm2, "2+")$F1,
+  get_metrics(cm2, "0")$F1,
+  get_metrics(cm2, "1")$F1
+), na.rm = TRUE)
+
+data.frame(macro_prec2, macro_rec2, macro_f1_2)
+```
+
+**Interpretation**  
+
+The "0" class is the hardest to predict, as the demographic model never correctly identifies counties with zero newspapers. Even with Model 2, although performance improves substantially, this class remains more difficult to detect than the others.
+
+The other two classes are both moderately well predicted than the "0" class, but neither is fully separable using demographics alone. In Model 1, both classes show only modest precision and recall, and their F1 indicate substantial confusion between them. In Model 2, both classes become much easier to distinguish, with high precision, recall, and F1 for each.
