@@ -48,11 +48,12 @@ summary(fit1)
 -apply(coef(fit1), 2, diff)
 ```
 
-Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 1  
-SES21: Counties with higher socioeconomic status are slightly more likely to have 0 newspapers than 1  
-Lpopdens2021: Higher population density strongly are substantially less likely to have 0 newspapers than 1  
-Lblack2021: Counties with larger Black populations are slight more likely to have 0 newspapers than 1  
-Lhisp2021: Counties with larger Hispanic populations are more likely to have 0 than 1 newspapers  
+A one unit increase in age will increase the log odds of 1 paper versus 0 by .0183
+A one unit increase in socioeconomic status will increase the log odds of 1 paper versus 0 by .0998
+A one unit increase in population density will increase the log odds of 1 paper versus 0 by .494
+A one unit increase in the percentage of the county that is black will decrease the log odds of 1 paper versus 0 by .0978
+A one unit increase in the percentage of the county that is hispanic will decrease the log odds of 1 paper versus 0 by .105
+ 
   
 **0 vs 2+ Logit:**
 
@@ -60,11 +61,12 @@ Lhisp2021: Counties with larger Hispanic populations are more likely to have 0 t
 coef(fit1)["0", ]
 ```
 
-Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 2+  
-SES21: Counties with higher socioeconomic status are less likely to have 0 newspapers than 2+  
-Lpopdens2021: Higher population density strongly reduces the odds of having 0 newspapers than 2+  
-Lblack2021: Counties with larger Black populations are substantially more likely to have 0 newspapers than 2+  
-Lhisp2021: Counties with larger Hispanic populations are slightly less likely to have 0 than 2+ newspapers  
+A one unit increase in age will increase the log odds of 2+ papers versus 0 by .00019
+A one unit increase in socioeconomic status will increase the log odds of 2+ papers versus 0 by .484
+A one unit increase in population density will increase the log odds of 2+ papers versus 0 by .849
+A one unit increase in the percentage of the county that is black will decrease the log odds of 2+ papers versus 0 by .349
+A one unit increase in the percentage of the county that is hispanic will increase the log odds of 2+ papers versus 0 by .0331
+  
   
 **1 vs 2+ Logit:**
 
@@ -72,11 +74,11 @@ Lhisp2021: Counties with larger Hispanic populations are slightly less likely to
 coef(fit1)["1", ]
 ```
 
-Age: Counties with higher avg age in 2021 are slightly more likely to have 1 newspapers relative to 2+  
-SES21: Counties with higher socioeconomic status are less likely to have 1 newspapers than 2+  
-Lpopdens2021: Higher population density substantially reduces the odds of having 1 newspapers than 2+  
-Lblack2021: Counties with larger Black populations are substantially more likely to have 1 newspapers than 2+  
-Lhisp2021: Counties with larger Hispanic populations are less likely to have 1 than 2+ newspapers    
+A one unit increase in age will decrease the log odds of 2+ papers versus 1 by .018
+A one unit increase in socioeconomic status will increase the log odds of 2+ papers versus 1 by .384
+A one unit increase in population density will increase the log odds of 2+ papers versus 1 by .355
+A one unit increase in the percentage of the county that is black will decrease the log odds of 2+ papers versus 1 by .251
+A one unit increase in the percentage of the county that is hispanic will increase the log odds of 2+ papers versus 1 by .138    
 
 ## (c). Use a multinomial regression to predict pub3.2023 from the AR1+ variables. Find the missing logit and interpret the model.
 
@@ -93,12 +95,12 @@ summary(fit2)
 -apply(coef(fit2), 2, diff)
 ```
 
-log(Cpub2018 + 1): Counties with more historical newspapers are much less likely to have 0 newspapers than 1 newspapers  
-Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 1  
-SES21: Counties with higher socioeconomic status are less likely to have 0 newspapers than 1  
-Lpopdens2021: Higher population density strongly are substantially less likely to have 0 newspapers than 1  
-Lblack2021: Counties with larger Black populations are slight less likely to have 0 newspapers than 1  
-Lhisp2021: Counties with larger Hispanic populations are slight more likely to have 0 than 1 newspapers  
+A one unit increase in log number of newspapers published in 2018 will increase the log odds of 1 paper versus 0 by 10.8
+A one unit increase in age will increase the log odds of 1 paper versus 0 by .0348
+A one unit increase in socioeconomic status will increase the log odds of 1 paper versus 0 by .136
+A one unit increase in population density will increase the log odds of 1 paper versus 0 by .268
+A one unit increase in the percentage of the county that is black will increase the log odds of 1 paper versus 0 by .0428
+A one unit increase in the percentage of the county that is hispanic will decrease the log odds of 1 paper versus 0 by .00951  
   
 **0 vs 2+ Logit:**
 
@@ -106,12 +108,13 @@ Lhisp2021: Counties with larger Hispanic populations are slight more likely to h
 coef(fit2)["0", ]
 ```
 
-log(Cpub2018 + 1): Counties with more historical newspapers are much less likely to have 0 newspapers than 2+ newspapers  
-Age: Counties with higher avg age in 2021 are slightly less likely to have 0 newspapers relative to 2+  
-SES21: Counties with higher socioeconomic status are less likely to have 0 newspapers than 2+  
-Lpopdens2021: Higher population density strongly reduces the odds of having 0 newspapers than 2+  
-Lblack2021: Counties with larger Black populations are slightly less likely to have 0 newspapers than 2+  
-Lhisp2021: Counties with larger Hispanic populations are more likely to have 0 than 2+ newspapers  
+A one unit increase in log number of newspapers published in 2018 will increase the log odds of 2+ papers versus 0 by 21.3
+A one unit increase in age will increase the log odds of 2+ papers versus 0 by .0203
+A one unit increase in socioeconomic status will increase the log odds of 2+ papers versus 0 by .275
+A one unit increase in population density will increase the log odds of 2+ papers versus 0 by .257
+A one unit increase in the percentage of the county that is black will increase the log odds of 2+ papers versus 0 by .0217
+A one unit increase in the percentage of the county that is hispanic will decrease the log odds of 2+ papers versus 0 by .157
+  
   
 **1 vs 2+ Logit:**
 
@@ -119,12 +122,13 @@ Lhisp2021: Counties with larger Hispanic populations are more likely to have 0 t
 coef(fit2)["1", ]
 ```
 
-log(Cpub2018 + 1): Counties with more historical newspapers are much less likely to have 1 newspapers than 2+ newspapers  
-Age: Counties with higher avg age in 2021 are slightly more likely to have 1 newspapers relative to 2+  
-SES21: Counties with higher socioeconomic status are less likely to have 1 newspapers than 2+  
-Lpopdens2021: Higher population density is slight more likely having 1 newspapers than 2+  
-Lblack2021: Counties with larger Black populations are slightly more likely to have 1 newspapers than 2+  
-Lhisp2021: Counties with larger Hispanic populations are more likely to have 1 than 2+ newspapers  
+A one unit increase in log number of newspapers published in 2018 will increase the log odds of 2+ papers versus 1 by 10.5
+A one unit increase in age will decrease the log odds of 2+ papers versus 1 by .0145
+A one unit increase in socioeconomic status will increase the log odds of 2+ papers versus 1 by .138
+A one unit increase in population density will decrease the log odds of 2+ papers versus 1 by .0104
+A one unit increase in the percentage of the county that is black will decrease the log odds of 2+ papers versus 1 by .0211
+A one unit increase in the percentage of the county that is hispanic will decrease the log odds of 2+ papers versus 1 by .148
+  
 
 ## (d). For your two models, find accuracy; per-class precision, recall and F1; and macro precision, recall and F1. What do you conclude about which classes can be easily distinguished versus those that are more difficult to predict?
 
